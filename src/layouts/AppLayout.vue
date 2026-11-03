@@ -1,8 +1,14 @@
+<script setup>
+import BottomNav from '@/components/BottomNav.vue'
+</script>
+
 <template>
   <div class="mobile-app-wrapper">
     <main class="mobile-app-content">
       <router-view />
     </main>
+
+    <BottomNav />
   </div>
 </template>
 
@@ -20,5 +26,6 @@
   min-height: 100vh;
   background-color: $color-background;
   padding: $space-lg $padding-screen; // 24px top/bund, 16px i siderne
+  padding-bottom: calc(64px + #{$space-lg});
 }
 </style>
