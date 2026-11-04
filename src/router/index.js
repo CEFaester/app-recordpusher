@@ -11,6 +11,8 @@ const router = createRouter({
       component: AppLayout,
       children: [
         { path: '', name: 'home', component: () => import('@/views/HomeView.vue') },
+        { path: 'events', name: 'events', component: () => import('@/views/EventsView.vue') },
+        { path: 'points', name: 'points', component: () => import('@/views/PointsView.vue') },
         { path: 'profile', name: 'profile', component: () => import('@/views/ProfileView.vue') }
       ]
     },
