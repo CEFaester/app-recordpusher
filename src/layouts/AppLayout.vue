@@ -17,7 +17,7 @@ import BottomNav from '@/components/BottomNav.vue'
 
 <style lang="scss" scoped>
 .mobile-app-wrapper {
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: $color-primary;
   display: flex;
   justify-content: center;
@@ -26,7 +26,7 @@ import BottomNav from '@/components/BottomNav.vue'
 .mobile-app-content {
   width: 100%;
   max-width: $app-max-width;
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: $color-background;
   padding: $space-lg $padding-screen; // 24px top/bund, 16px i siderne
   
