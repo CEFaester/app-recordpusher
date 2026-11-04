@@ -24,20 +24,20 @@ const handlePurchase = (item) => {
 
 <template>
   <div class="points-view">
-
+    <h1 class="page-title">DET GIVER <br> NOGET IGEN.</h1>
     <!-- Point Saldo Boks -->
     <header class="balance-card">
-      <h2 class="balance-title">Dine Point</h2>
+      <h3 class="balance-title">Dine Point</h3>
       <div class="balance-amount">
         <span class="number">{{ userPoints }}</span>
-        <span class="label">pt</span>
+        <span class="label">POINT</span>
       </div>
       <p class="balance-desc">Brug dine point i butikken herunder</p>
     </header>
 
     <!-- Point Butik -->
     <section class="shop-section">
-      <h3 class="shop-title">Point Butik</h3>
+      <h2 class="shop-title">Din Point Butik</h2>
       
       <div class="shop-grid">
         <article v-for="item in shopItems" :key="item.id" class="shop-item">
@@ -68,7 +68,7 @@ const handlePurchase = (item) => {
   background-color: $color-accent-primary;
   color: $color-text-inverted;
   padding: $space-lg;
-  text-align: center;
+  text-align: flex-start;
   margin-top: $space-md;
 }
 
@@ -81,7 +81,7 @@ const handlePurchase = (item) => {
 .balance-amount {
   display: flex;
   align-items: baseline;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 4px;
   
   .number {
@@ -116,7 +116,7 @@ const handlePurchase = (item) => {
 }
 
 .shop-item {
-  background-color: $color-accent-secondary;
+  background-color: $color-primary;
   padding: $space-md;
   display: flex;
   flex-direction: column;
@@ -156,7 +156,7 @@ const handlePurchase = (item) => {
 }
 
 .item-price {
-  background-color: $color-primary;
+  background-color: $color-accent-secondary;
   padding: $space-xs $space-sm;
   font-size: $font-size-small;
   color: $color-text;
