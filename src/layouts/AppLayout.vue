@@ -1,9 +1,12 @@
 <script setup>
+import TopNav from '@/components/TopNav.vue'
 import BottomNav from '@/components/BottomNav.vue'
 </script>
 
 <template>
   <div class="mobile-app-wrapper">
+    <TopNav />
+
     <main class="mobile-app-content">
       <router-view />
     </main>
@@ -26,6 +29,9 @@ import BottomNav from '@/components/BottomNav.vue'
   min-height: 100vh;
   background-color: $color-background;
   padding: $space-lg $padding-screen; // 24px top/bund, 16px i siderne
-  padding-bottom: calc(64px + #{$space-lg});
+  
+  // top = 64px (TopNav højde) + space-lg
+  // bund = 64px (BottomNav højde) + space-lg
+  padding: calc(64px + #{$space-lg}) $padding-screen calc(64px + #{$space-lg});
 }
 </style>
