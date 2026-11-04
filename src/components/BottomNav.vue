@@ -67,8 +67,8 @@ import IconProfile from '@/components/icons/IconProfile.vue'
     font-weight: 500;
   }
 
-  &.router-link-active {
-    color: $color-primary;
+  &.router-link-exact-active {
+    color: $color-accent-primary;
 
     .nav-label {
       font-weight: 600;
