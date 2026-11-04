@@ -27,7 +27,7 @@ const handlePurchase = (item) => {
 
     <!-- Point Saldo Boks -->
     <header class="balance-card">
-      <h2 class="balance-title">Din Pointsaldo</h2>
+      <h2 class="balance-title">Dine Point</h2>
       <div class="balance-amount">
         <span class="number">{{ userPoints }}</span>
         <span class="label">pt</span>
@@ -76,7 +76,6 @@ const handlePurchase = (item) => {
   font-size: 1rem;
   font-weight: 500;
   margin-bottom: $space-xs;
-  opacity: 0.9;
 }
 
 .balance-amount {
@@ -121,53 +120,46 @@ const handlePurchase = (item) => {
   padding: $space-md;
   display: flex;
   flex-direction: column;
-  align-items: left;
-  text-align: left;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
 }
 
 .item-visual {
+  flex: 1;
+  min-height: 0;
   font-size: 3rem; // Gør emojien stor - udskift med <img> tag senere
-  margin-bottom: $space-sm;
+  margin-bottom: $space-xs;
+  align-self: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; // Bevarer billedets proportioner perfekt (ingen strækning eller beskæring)
+  }
 }
 
 .item-info {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
+  margin-bottom: $space-xs;
+  justify-content: flex-end;
+  align-items: flex-start;
   gap: 4px;
-  margin-bottom: $space-md;
 }
 
 .item-name {
-  font-size: 0.9rem;
+  font-size: $font-size-small;
   font-weight: 600;
   color: $color-text;
   line-height: 1.3;
+  margin: 0;
 }
 
 .item-price {
   background-color: $color-primary;
   padding: $space-xs $space-sm;
-  font-size: 0.85rem;
+  font-size: $font-size-small;
   color: $color-text;
   font-weight: 700;
-}
-
-.buy-btn {
-  width: 100%;
-  padding: 8px 16px;
-  background-color: #f1f5f9;
-  color: $color-text;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:active {
-    background-color: $color-primary;
-    color: #ffffff;
-  }
 }
 </style>
