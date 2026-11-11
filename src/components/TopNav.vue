@@ -1,7 +1,15 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { ref } from 'vue'
 import IconBack from '@/components/icons/IconBack.vue'
 import IconQRCode from '@/components/icons/IconQRCode.vue'
+import MembershipModal from '@/components/MembershipModal.vue' // Importer modalen
+
+// Reaktiv tilstand der styrer pop-uppen
+const isQrModalOpen = ref(false)
+
+// Simuleret bruger-id
+const currentUserId = ref('CEF-849201')
 
 const route = useRoute()
 const router = useRouter()
@@ -26,10 +34,15 @@ const openMembershipCard = () => {
     </div>
 
     <div class="nav-right">
-      <button class="icon-btn" @click="openMembershipCard">
+      <button class="icon-btn" @click="isQrModalOpen = true">
         <IconQRCode class="nav-icon" />
       </button>
     </div>
+    <MembershipModal 
+      :is-open="isQrModalOpen" 
+      :user-id="currentUserId" 
+      @close="isQrModalOpen = false" 
+    />
   </header>
 </template>
 
