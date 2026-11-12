@@ -18,8 +18,14 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "@/assets/_variables.scss" as *;`
+        additionalData: `
+        @use "sass:color";
+        @use "@/assets/_variables.scss" as *;
+        `
       }
     }
+  },
+  server: {
+    allowedHosts: true
   }
 })

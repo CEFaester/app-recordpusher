@@ -120,7 +120,7 @@ const navigateTo = (routeName) => {
       <!-- 2. Point Boks -->
       <button class="points-banner" @click="router.push({ name: 'points' })">
         <div class="banner-text">
-          <span class="banner-label">Dine point</span>
+          <span class="banner-label">DIN MUSIK. DIT FÆLLESKAB.</span>
           <span class="banner-amount">{{ userProfile.points }} point</span>
         </div>
         <IconArrow class="banner-icon" />
@@ -202,7 +202,7 @@ const navigateTo = (routeName) => {
 
 .error-msg {
   color: $color-accent-primary; // Rød fejlfarve
-  font-size: 0.85rem;
+  font-size: $font-size-small;
   font-weight: 500;
 }
 
@@ -214,7 +214,7 @@ const navigateTo = (routeName) => {
   color: $color-text;
   border: none;
   padding: $space-sm;
-  font-size: 1rem;
+  font-size: $font-size-base;
   font-weight: 600;
   margin-top: $space-sm;
   cursor: pointer;
@@ -230,7 +230,7 @@ const navigateTo = (routeName) => {
   color: $color-text;
   border: none;
   padding: $space-sm;
-  font-size: 1rem;
+  font-size: $font-size-base;
   font-weight: 600;
   margin-top: $space-xl;
   cursor: pointer;
@@ -240,7 +240,7 @@ const navigateTo = (routeName) => {
   background: none;
   border: none;
   color: $color-text;
-  font-size: 0.9rem;
+  font-size: $font-size-base;
   font-weight: 600;
   margin-top: $space-lg;
   padding: $space-sm;
@@ -301,7 +301,7 @@ const navigateTo = (routeName) => {
   
   .avatar-placeholder {
     color: $color-text-inverted;
-    font-size: 1.5rem;
+    font-size: $font-size-large;
     font-weight: 700;
   }
 }
@@ -313,14 +313,14 @@ const navigateTo = (routeName) => {
 }
 
 .user-greeting {
-  font-size: 1.25rem;
+  font-size: $font-size-large;
   font-weight: 700;
   color: $color-text;
   margin: 0;
 }
 
 .user-subtitle {
-  font-size: 0.85rem;
+  font-size: $font-size-small;
   color: $color-text;
   margin: 0;
 }
@@ -338,7 +338,7 @@ const navigateTo = (routeName) => {
   transition: background-color 0.2s;
   
   &:active {
-    background-color: darken($color-accent-primary, 10%);
+    background-color: color.adjust($color-accent-primary, $lightness: -10%);
   }
 
   .banner-text {
@@ -348,12 +348,14 @@ const navigateTo = (routeName) => {
   }
 
   .banner-label {
-    font-size: 0.85rem;
-    color: $color-text-inverted;
+    font-size: $font-size-small;
+    font-weight: 500;
+    color: $color-accent-secondary;
+
   }
 
   .banner-amount {
-    font-size: 1.25rem;
+    font-size: $font-size-large;
     font-weight: 700;
     color: $color-text-inverted;
   }
@@ -377,7 +379,7 @@ const navigateTo = (routeName) => {
   align-items: center;
   background: transparent;
   border: none;
-  border-bottom: 1px solid $color-text;
+  border-bottom: 1px solid color.adjust($color-text, $saturation: -30%, $lightness: 50%);
   padding: $space-md 0;
   cursor: pointer;
   color: $color-text;
@@ -398,8 +400,8 @@ const navigateTo = (routeName) => {
   }
 
   .menu-icon {
-    width: 20px;
-    height: 20px;
+    width: 15px;
+    height: 15px;
     opacity: 0.5; // Gør pilen lidt nedtonet
   }
 }
