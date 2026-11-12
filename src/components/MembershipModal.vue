@@ -23,7 +23,7 @@ defineEmits(['close'])
         
         <div class="modal-header">
           <h3>Dit Medlemskort</h3>
-          <button class="close-btn" @click="$emit('close')">Luk</button>
+          <button class="close-btn" @click="$emit('close')" aria-label="Luk">&times;</button>
         </div>
 
         <div class="qr-container">
@@ -83,7 +83,7 @@ defineEmits(['close'])
 
   h3 {
     margin: 0;
-    font-size: 1.2rem;
+    font-size: $font-size-base;
     color: $color-text;
   }
 }
@@ -93,7 +93,7 @@ defineEmits(['close'])
   border: none;
   color: $color-text;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 2rem;
   cursor: pointer;
   padding: $space-xs 0;
 }
