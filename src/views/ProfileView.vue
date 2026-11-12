@@ -329,7 +329,7 @@ const navigateTo = (routeName) => {
 .points-banner {
   background-color: $color-accent-primary;
   border: none;
-  padding: $space-md;
+  padding: $space-lg $space-md;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -344,7 +344,7 @@ const navigateTo = (routeName) => {
   .banner-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
   }
 
   .banner-label {
@@ -380,7 +380,7 @@ const navigateTo = (routeName) => {
   background: transparent;
   border: none;
   border-bottom: 1px solid color.adjust($color-text, $saturation: -30%, $lightness: 50%);
-  padding: $space-md 0;
+  padding: $space-xl 0;
   cursor: pointer;
   color: $color-text;
   transition: opacity 0.2s;
