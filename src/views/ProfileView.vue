@@ -150,7 +150,7 @@ const navigateTo = (routeName) => {
 .profile-view {
   display: flex;
   flex-direction: column;
-  margin-top: $space-md;
+  margin-top: $space-sm;
 }
 
 /* Typografi generelt */
@@ -410,6 +410,6 @@ const navigateTo = (routeName) => {
   margin-top: $space-xl;
   color: $color-accent-primary;
   background-color: transparent;
-  border: 1px solid $color-accent-primary;
+  border: 2px solid $color-accent-primary;
 }
 </style>
