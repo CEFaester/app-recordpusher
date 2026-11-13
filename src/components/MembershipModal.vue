@@ -61,11 +61,11 @@ defineEmits(['close'])
    ========================================= */
 .modal-content {
   position: fixed;
-  top: 0;
+  top: calc(env(safe-area-inset-top, 0px) + $space-md); // Tilføjer safe area inset for toppen
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
-  max-width: $app-max-width; // Bruger din mobilbredde-variabel
+  width: calc(100% - (2 * $space-lg)); // Tilføjer lidt margin på siderne
+  max-width: calc(#{$app-max-width} - (2 * $space-xl));
   background-color: $color-background;
   padding: calc(env(safe-area-inset-top, 0px) + $space-lg) $space-lg $space-xl $space-lg;
   z-index: 1000;
@@ -93,7 +93,7 @@ defineEmits(['close'])
   border: none;
   color: $color-text;
   font-weight: 600;
-  font-size: 2rem;
+  font-size: 3rem;
   cursor: pointer;
   padding: $space-xs 0;
 }
