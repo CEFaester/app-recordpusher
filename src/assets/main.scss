@@ -1,4 +1,9 @@
-body {
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  background-color: $color-background;
+  overflow-x: hidden;
   font-family: $font-family-base;
   -webkit-font-smoothing: antialiased; // Gør teksten skarpere og pænere på Mac
   -moz-osx-font-smoothing: grayscale;
