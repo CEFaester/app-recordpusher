@@ -70,7 +70,7 @@ const openMembershipCard = () => {
 }
 
 .nav-logo {
-  height: 32px;
+  height: 40px;
   width: auto;
   object-fit: contain;
 }
@@ -87,8 +87,8 @@ const openMembershipCard = () => {
   color: $color-text;
 
   .nav-icon {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
   }
 }
 </style>
