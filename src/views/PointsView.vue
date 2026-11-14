@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const userPoints = ref(0)
 const shopItems = ref([])
 
@@ -18,7 +20,7 @@ onMounted(() => {
 })
 
 const handlePurchase = (item) => {
-  console.log(`Forbereder QR kode til: ${item.name} for ${item.cost} point`)
+  router.push({ name: 'purchase', params: { id: item.id } })
 }
 </script>
 
@@ -40,19 +42,24 @@ const handlePurchase = (item) => {
       <h2 class="shop-title">Din Point Butik</h2>
       
       <div class="shop-grid">
-        <article v-for="item in shopItems" :key="item.id" class="shop-item">
+        <button 
+          v-for="item in shopItems" 
+          :key="item.id" 
+          type="button"
+          class="shop-item"
+          @click="handlePurchase(item)"
+        >
           <div class="item-visual">{{ item.icon }}</div>
           
           <div class="item-info">
             <h4 class="item-name">{{ item.name }}</h4>
             <div class="item-price">{{ item.cost }} POINT</div>
           </div>
-        </article>
+        </button>
       </div>
     </section>
   </div>
 </template>
-
 
 <style lang="scss" scoped>
 .points-view {
@@ -122,6 +129,17 @@ const handlePurchase = (item) => {
   flex-direction: column;
   aspect-ratio: 1 / 1;
   overflow: hidden;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+
+  &:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
 }
 
 .item-visual {

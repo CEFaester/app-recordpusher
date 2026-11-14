@@ -13,7 +13,8 @@ const router = createRouter({
         { path: '', name: 'home', component: () => import('@/views/HomeView.vue') },
         { path: 'events', name: 'events', component: () => import('@/views/EventsView.vue') },
         { path: 'points', name: 'points', component: () => import('@/views/PointsView.vue') },
-        { path: 'profile', name: 'profile', component: () => import('@/views/ProfileView.vue') }
+        { path: 'profile', name: 'profile', component: () => import('@/views/ProfileView.vue') },
+        { path: 'points/:id', name: 'purchase', component: () => import('@/views/PurchaseView.vue') }
       ]
     },
     // Admin (Desktop Layout)
