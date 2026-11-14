@@ -140,8 +140,6 @@ const qrCodeUrl = computed(() => {
   display: flex;
   flex-direction: column;
   margin-top: $space-md;
-  // Giver plads i bunden så indhold aldrig gemmer sig bag swipe-knappen
-  padding-bottom: 90px; 
 }
 
 /* =========================================

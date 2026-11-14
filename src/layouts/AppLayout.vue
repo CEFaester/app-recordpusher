@@ -24,6 +24,7 @@ import BottomNav from '@/components/BottomNav.vue'
 }
 
 .mobile-app-content {
+  box-sizing: border-box;
   width: 100%;
   max-width: $app-max-width;
   min-height: 100dvh;
