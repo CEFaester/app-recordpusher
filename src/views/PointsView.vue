@@ -1,22 +1,24 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { getShopItems } from '@/services/shopService'
 
 const router = useRouter()
 const userPoints = ref(0)
 const shopItems = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
 
-onMounted(() => {
-  userPoints.value = 1450 
-
-  shopItems.value = [
-    { id: 1, name: 'Eksklusiv T-shirt', cost: 500, icon: '👕' },
-    { id: 2, name: 'Kold Sodavand', cost: 150, icon: '🥤' },
-    { id: 3, name: 'Musik Plakat', cost: 300, icon: '🖼️' },
-    { id: 4, name: 'Øl', cost: 200, icon: '🍺' },
-    { id: 5, name: 'Film Plakat', cost: 100, icon: '🖼️' },
-    { id: 6, name: 'Puslespil', cost: 150, icon: '🧩' }
-  ]
+onMounted(async () => {
+  try {
+    isLoading.value = true
+    shopItems.value = await getShopItems()
+  } catch (error) {
+    errorMessage.value = 'Kunne ikke indlæse varer lige nu.'
+    console.error(error)
+  } finally {
+    isLoading.value = false
+  }
 })
 
 const handlePurchase = (item) => {
@@ -27,6 +29,7 @@ const handlePurchase = (item) => {
 <template>
   <div class="points-view">
     <h1 class="page-title">DET GIVER <br> NOGET IGEN.</h1>
+    
     <!-- Point Saldo Boks -->
     <header class="balance-card">
       <h3 class="balance-title">Dine Point</h3>
@@ -41,7 +44,10 @@ const handlePurchase = (item) => {
     <section class="shop-section">
       <h2 class="shop-title">Din Point Butik</h2>
       
-      <div class="shop-grid">
+      <p v-if="isLoading" class="status-text">Indlæser butik...</p>
+      <p v-else-if="errorMessage" class="status-text error">{{ errorMessage }}</p>
+
+      <div v-else class="shop-grid">
         <button 
           v-for="item in shopItems" 
           :key="item.id" 
