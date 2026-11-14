@@ -10,7 +10,6 @@ const itemId = route.params.id
 
 <template>
   <div class="purchase-view">
-    <button type="button" @click="router.back()">← Tilbage</button>
     
     <h1>Valgt vare (ID: {{ itemId }})</h1>
     <p>Her bygger vi betaling og QR-kode bagefter.</p>
