@@ -1,10 +1,29 @@
-<!-- AdminLayout.vue -->
+<script setup>
+</script>
+
 <template>
   <div class="admin-wrapper">
-    <aside class="admin-sidebar">
-      <!-- Admin navigation -->
-    </aside>
-    
+    <header class="admin-topbar">
+      <div class="topbar-inner">
+        <div class="topbar-brand">
+          <span class="brand-title">ADMIN</span>
+          <RouterLink :to="{ name: 'home' }" class="back-to-app">← Til app</RouterLink>
+        </div>
+
+        <nav class="admin-nav">
+          <RouterLink :to="{ name: 'admin-dashboard' }" class="nav-link">
+            Oversigt
+          </RouterLink>
+          <RouterLink :to="{ name: 'admin-events' }" class="nav-link">
+            Events
+          </RouterLink>
+          <RouterLink :to="{ name: 'admin-points' }" class="nav-link">
+            Point Butik
+          </RouterLink>
+        </nav>
+      </div>
+    </header>
+
     <main class="admin-main">
       <router-view />
     </main>
