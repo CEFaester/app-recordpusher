@@ -23,6 +23,8 @@ const router = createRouter({
       component: AdminLayout,
       children: [
         { path: '', name: 'admin-dashboard', component: () => import('@/views/admin/DashboardView.vue') },
+        { path: 'events', name: 'admin-events', component: () => import('@/views/admin/AdminEventsView.vue') },
+        { path: 'points', name: 'admin-points', component: () => import('@/views/admin/AdminPointsView.vue') }
       ]
     }
   ]
