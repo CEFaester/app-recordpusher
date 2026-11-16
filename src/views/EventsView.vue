@@ -102,44 +102,280 @@ watch(() => route.query, () => { savedIds.value = getSavedEventIds() })
 </template>
 
 <style lang="scss" scoped>
-.events-view { display: flex; flex-direction: column; gap: 18px; padding-top: 36px; }
-.eyebrow { margin: 0; font-size: 12px; line-height: 16px; color: $color-accent-primary; font-weight: 700; }
-h1 { font-size: 38px; line-height: 44px; font-weight: 400; }
-.events-view__intro { margin: 0; color: #68655e; font-size: 14px; line-height: 20px; }
-.events-view__tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.action {
-  height: 52px; width: 100%; background: transparent; color: $color-text;
-  border: 1px solid #d8d2c5; border-radius: 4px; padding: 0 18px;
-  font: 700 14px/20px $font-family-base; text-align: left;
-  display: flex; align-items: center; justify-content: space-between;
-  text-decoration: none; cursor: pointer; box-sizing: border-box;
+
+.events-view {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
 }
-.action span { font-size: 22px; font-weight: 400; }
-.action--selected { background: $color-text; border-color: $color-text; color: $color-text-inverted; }
-.action--full { width: 100%; }
-.events-view__month { color: #68655e; font-size: 12px; line-height: 16px; font-weight: 700; margin: 0; }
-.event-button { display: block; width: 100%; border: 0; padding: 0; background: none; text-align: left; cursor: pointer; color: inherit; }
-.events-view__note { color: #68655e; font-size: 12px; line-height: 16px; margin: 0 0 12px; }
-.events-view__backline { height: 36px; display: flex; align-items: center; gap: 20px; margin: -19px 0 0; padding-bottom: 30px; border-bottom: 1px solid #d8d2c5; font-size: 12px; font-weight: 700; }
-.back-button { width: 36px; height: 36px; padding: 6px; border: 0; background: transparent; cursor: pointer; color: $color-text; display: grid; place-items: center; }
-.back-button :deep(svg) { width: 24px; height: 24px; }
-.detail-poster { position: relative; height: 188px; overflow: hidden; background: $color-accent-secondary; }
-.detail-poster--red { background: $color-accent-primary; }
-.detail-poster img { position: absolute; height: 170px; width: 170px; right: -44px; bottom: -20px; }
-.detail-poster h2 { position: relative; margin: 17px 18px; font-size: 47px; line-height: 46px; font-weight: 400; display: flex; flex-direction: column; }
-.detail-poster--red h2 { color: $color-text-inverted; }
-.detail-poster strong { position: absolute; left: 27px; bottom: 25px; font-size: 12px; }
-.detail-title { font-size: 27px; line-height: 33px; }
-.event-facts { display: flex; flex-direction: column; gap: 18px; }
-.event-facts p { margin: 0; display: flex; align-items: center; gap: 10px; color: #68655e; font-size: 14px; line-height: 20px; }
-.event-facts :deep(svg) { color: $color-text; width: 18px; height: 18px; flex-shrink: 0; }
-.detail-description { margin: 0; color: #68655e; font-size: 14px; line-height: 20px; }
-.detail-note { margin: 0; color: #68655e; font-size: 12px; line-height: 16px; }
-.saved-confirmation { background: $color-primary; padding: 16px; margin: 0; font-size: 12px; line-height: 22px; color: #68655e; }
-.saved-confirmation strong { color: $color-text; }
-.empty-saved { margin: 0; padding: 24px 16px; background: #fff; font-size: 14px; line-height: 20px; color: #68655e; }
-.saved-info { padding: 18px; background: $color-primary; }
-.saved-info__bookmark { width: 26px; height: 26px; display: block; margin-bottom: 12px; }
-.saved-info h2 { font-size: 21px; line-height: 27px; font-weight: 400; }
-.saved-info p { font-size: 14px; line-height: 20px; color: #68655e; margin: 10px 0 0; }
+
+/* =========================================
+   HEADER & TYPOGRAFI
+   ========================================= */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: $font-size-small;
+  color: $color-accent-primary;
+  font-weight: 700;
+}
+
+.page-title {
+  font-family: $font-family-heading;
+  font-size: 2.375rem;
+  line-height: 1.15;
+  font-weight: 400;
+  color: $color-text;
+  margin: 0;
+}
+
+.page-intro {
+  margin: $space-xs 0 0 0;
+  color: color.adjust($color-text, $lightness: 30%);
+  font-size: $font-size-base;
+  line-height: 1.4;
+}
+
+.section-label {
+  color: color.adjust($color-text, $lightness: 30%);
+  font-size: $font-size-small;
+  font-weight: 700;
+  margin: 0;
+}
+
+.muted-note {
+  color: color.adjust($color-text, $lightness: 30%);
+  font-size: $font-size-small;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* =========================================
+   KNAPPER & TABS
+   ========================================= */
+.tabs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-sm;
+}
+
+.action-btn {
+  width: 100%;
+  min-height: 52px;
+  background-color: $color-primary;
+  color: $color-text;
+  border: none;
+  padding: $space-sm $space-md;
+  font-family: inherit;
+  font-size: $font-size-base;
+  font-weight: 600;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  .arrow {
+    font-size: 1.25rem;
+    font-weight: 400;
+  }
+
+  &--selected {
+    background-color: $color-text;
+    color: $color-text-inverted;
+  }
+}
+
+/* =========================================
+   EVENT LISTE
+   ========================================= */
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.event-button {
+  display: block;
+  width: 100%;
+  border: none;
+  padding: 0;
+  background: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  color: inherit;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+/* =========================================
+   UNDERSIDE HEADER & DETALJER
+   ========================================= */
+.subview-header {
+  padding-bottom: $space-sm;
+  border-bottom: 1px solid color.adjust($color-primary, $lightness: -12%);
+  font-size: $font-size-small;
+  font-weight: 700;
+  color: $color-text;
+}
+
+.detail-poster {
+  position: relative;
+  height: 188px;
+  overflow: hidden;
+  background-color: $color-accent-secondary;
+
+  &--red {
+    background-color: $color-accent-primary;
+
+    h2 {
+      color: $color-text-inverted;
+    }
+  }
+
+  img {
+    position: absolute;
+    height: 170px;
+    width: 170px;
+    right: -44px;
+    bottom: -20px;
+  }
+
+  h2 {
+    position: relative;
+    margin: $space-md;
+    font-family: $font-family-heading;
+    font-size: 2.9rem;
+    line-height: 1;
+    font-weight: 400;
+    color: $color-text;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .poster-badge {
+    position: absolute;
+    left: $space-md;
+    bottom: $space-md;
+    font-size: $font-size-small;
+    font-weight: 700;
+    color: $color-text;
+  }
+
+  &--red .poster-badge {
+    color: $color-text-inverted;
+  }
+}
+
+.detail-title {
+  font-family: $font-family-heading;
+  font-size: $font-size-large;
+  font-weight: 400;
+  color: $color-text;
+  margin: 0;
+}
+
+.event-facts {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+
+  p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    color: color.adjust($color-text, $lightness: 30%);
+    font-size: $font-size-base;
+  }
+
+  :deep(svg) {
+    color: $color-text;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+.detail-description {
+  margin: 0;
+  color: $color-text;
+  font-size: $font-size-base;
+  line-height: 1.5;
+}
+
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.saved-confirmation {
+  background-color: $color-primary;
+  padding: $space-md;
+  margin: 0;
+  font-size: $font-size-small;
+  line-height: 1.5;
+  color: color.adjust($color-text, $lightness: 30%);
+
+  strong {
+    color: $color-text;
+  }
+}
+
+/* =========================================
+   GEMTE EVENTS
+   ========================================= */
+.empty-saved {
+  margin: 0;
+  padding: $space-lg $space-md;
+  background-color: $color-primary;
+  font-size: $font-size-base;
+  line-height: 1.4;
+  color: color.adjust($color-text, $lightness: 30%);
+}
+
+.saved-info {
+  padding: $space-md;
+  background-color: $color-primary;
+
+  &__bookmark {
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin-bottom: $space-sm;
+    color: $color-text;
+  }
+
+  h2 {
+    font-family: $font-family-heading;
+    font-size: 1.35rem;
+    font-weight: 400;
+    color: $color-text;
+    margin: 0;
+  }
+
+  p {
+    font-size: $font-size-base;
+    line-height: 1.4;
+    color: color.adjust($color-text, $lightness: 30%);
+    margin: $space-xs 0 0 0;
+  }
+}
 </style>
