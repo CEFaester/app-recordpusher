@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
-import IconBack from '@/components/icons/IconBack.vue'
 import IconEvents from '@/components/icons/IconEvents.vue'
 import IconHome from '@/components/icons/IconHome.vue'
 import IconPoints from '@/components/icons/IconPoints.vue'
@@ -12,92 +11,190 @@ import vinyl from '@/assets/event-vinyl.svg'
 const route = useRoute()
 const router = useRouter()
 const savedIds = ref(getSavedEventIds())
+
 const activeView = computed(() => {
   if (route.query.saved === 'true') return 'saved'
   if (events.some(event => event.id === route.query.event)) return 'detail'
   return 'all'
 })
+
 const selectedEvent = computed(() => events.find(event => event.id === route.query.event))
 const savedEvents = computed(() => events.filter(event => savedIds.value.includes(event.id)))
 const isSaved = computed(() => !!selectedEvent.value && savedIds.value.includes(selectedEvent.value.id))
 
-function goToAll() { router.push({ name: 'events' }) }
-function goToSaved() { router.push({ name: 'events', query: { saved: 'true' } }) }
-function openEvent(event) { router.push({ name: 'events', query: { event: event.id } }) }
+function goToAll() {
+  router.push({ name: 'events' })
+}
+
+function goToSaved() {
+  router.push({ name: 'events', query: { saved: 'true' } })
+}
+
+function openEvent(event) {
+  router.push({ name: 'events', query: { event: event.id } })
+}
+
 function toggleSaved() {
   if (!selectedEvent.value) return
   const id = selectedEvent.value.id
-  const nextIds = savedIds.value.includes(id) ? savedIds.value.filter(saved => saved !== id) : [...savedIds.value, id]
+  const nextIds = savedIds.value.includes(id)
+    ? savedIds.value.filter(saved => saved !== id)
+    : [...savedIds.value, id]
   if (saveEventIds(nextIds)) savedIds.value = nextIds
 }
-// Undersiderne ligger i eventsiden, så der ikke skal ændres i din vens router.
-function goBack() { if (activeView.value === 'detail' && route.query.from === 'saved') goToSaved(); else goToAll() }
-watch(() => route.query, () => { savedIds.value = getSavedEventIds() })
+
+watch(() => route.query, () => {
+  savedIds.value = getSavedEventIds()
+})
 </script>
 
 <template>
   <div class="events-view">
+    
+    <!-- =========================================
+         1. ALLE EVENTS
+         ========================================= -->
     <template v-if="activeView === 'all'">
-      <p class="eyebrow">OPDAG · MØD OP · KOM IGEN</p>
-      <h1>DET SKER<br />I BUTIKKEN.</h1>
-      <p class="events-view__intro">Små events. Store musikøjeblikke.</p>
-      <div class="events-view__tabs" aria-label="Vis events">
-        <button class="action action--selected" type="button" aria-current="page">Alle events <span>→</span></button>
-        <button class="action" type="button" @click="goToSaved">Gemte <span>→</span></button>
+      <header class="page-header">
+        <p class="eyebrow">OPDAG · MØD OP · KOM IGEN</p>
+        <h1 class="page-title">DET SKER<br />I BUTIKKEN.</h1>
+        <p class="page-intro">Små events. Store musikøjeblikke.</p>
+      </header>
+
+      <div class="tabs-grid" aria-label="Vis events">
+        <button class="action-btn action-btn--selected" type="button" aria-current="page">
+          <span>Alle events</span>
+          <span class="arrow">→</span>
+        </button>
+        <button class="action-btn" type="button" @click="goToSaved">
+          <span>Gemte</span>
+          <span class="arrow">→</span>
+        </button>
       </div>
-      <p class="events-view__month">NOVEMBER / EKSEMPELEVENTS</p>
-      <button v-for="event in events" :key="event.id" type="button" class="event-button" @click="openEvent(event)">
-        <EventCard :event="event" />
-      </button>
-      <p class="events-view__note">Events her er konceptindhold til prototypen.</p>
+
+      <p class="section-label">NOVEMBER / KOMMENDE EVENTS</p>
+
+      <div class="events-list">
+        <button
+          v-for="event in events"
+          :key="event.id"
+          type="button"
+          class="event-button"
+          @click="openEvent(event)"
+        >
+          <EventCard :event="event" />
+        </button>
+      </div>
+
+      <p class="muted-note">Events her er konceptindhold til prototypen.</p>
     </template>
 
+    <!-- =========================================
+         2. EVENT DETALJE
+         ========================================= -->
     <template v-else-if="activeView === 'detail' && selectedEvent">
-      <div class="events-view__backline">
-        <button type="button" class="back-button" aria-label="Tilbage til events" @click="goBack"><IconBack /></button>
+      <div class="subview-header">
         <span>{{ selectedEvent.id === 'fredagslyt' ? 'FREDAGSLYT' : 'VINYL & VENNER' }}</span>
       </div>
+
       <div class="detail-poster" :class="`detail-poster--${selectedEvent.theme}`">
         <img :src="vinyl" alt="" />
-        <h2><span v-for="(line, index) in selectedEvent.poster.split('\n')" :key="index">{{ line }}</span></h2>
-        <strong>GRATIS ADGANG</strong>
+        <h2>
+          <span v-for="(line, index) in selectedEvent.poster.split('\n')" :key="index">{{ line }}</span>
+        </h2>
+        <span class="poster-badge">GRATIS ADGANG</span>
       </div>
+
       <h1 class="detail-title">{{ selectedEvent.title }}</h1>
+
       <div class="event-facts">
         <p><IconEvents /> {{ selectedEvent.date }}</p>
         <p><IconHome /> RecordPusher · Odense</p>
         <p><IconPoints /> +{{ selectedEvent.points }} point ved bekræftet eventbesøg</p>
       </div>
+
       <p class="detail-description">{{ selectedEvent.description }}</p>
-      <p class="detail-note">Gratis drop-in · Begrænset plads<br />At gemme eventet reserverer ikke en plads.</p>
-      <button class="action action--full action--selected" type="button" @click="toggleSaved">
-        {{ isSaved ? 'Fjern fra gemte' : 'Gem event' }} <span>→</span>
-      </button>
-      <p v-if="isSaved" class="saved-confirmation"><strong>GEMT. VI SES MELLEM PLADERNE.</strong><br />Eventet ligger nu under dine gemte events.</p>
-      <a class="action action--full" href="https://www.google.com/maps/search/?api=1&amp;query=RecordPusher%20Odense" target="_blank" rel="noopener noreferrer">Find vej til RecordPusher <span>→</span></a>
+
+      <p class="muted-note">
+        Gratis drop-in · Begrænset plads<br />
+        At gemme eventet reserverer ikke en plads.
+      </p>
+
+      <div class="detail-actions">
+        <button class="action-btn action-btn--selected" type="button" @click="toggleSaved">
+          <span>{{ isSaved ? 'Fjern fra gemte' : 'Gem event' }}</span>
+          <span class="arrow">→</span>
+        </button>
+
+        <p v-if="isSaved" class="saved-confirmation">
+          <strong>GEMT. VI SES MELLEM PLADERNE.</strong><br />
+          Eventet ligger nu under dine gemte events.
+        </p>
+
+        <a
+          class="action-btn"
+          href="https://www.google.com/maps/search/?api=1&amp;query=RecordPusher%20Odense"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span>Find vej til RecordPusher</span>
+          <span class="arrow">→</span>
+        </a>
+      </div>
     </template>
 
+    <!-- =========================================
+         3. GEMTE EVENTS
+         ========================================= -->
     <template v-else-if="activeView === 'saved'">
-      <div class="events-view__backline">
-        <button type="button" class="back-button" aria-label="Tilbage til events" @click="goToAll"><IconBack /></button>
+      <div class="subview-header">
         <span>GEMTE EVENTS</span>
       </div>
-      <p class="eyebrow">DIN NÆSTE MUSIKPAUSE</p>
-      <h1>GEMT TIL DIG.</h1>
-      <p class="events-view__intro">Dit næste besøg starter her.</p>
-      <template v-if="savedEvents.length">
-        <button v-for="event in savedEvents" :key="event.id" type="button" class="event-button" @click="router.push({name: 'events', query: {event: event.id, from: 'saved'}})">
+
+      <header class="page-header">
+        <p class="eyebrow">DIN NÆSTE MUSIKPAUSE</p>
+        <h1 class="page-title">GEMT TIL DIG.</h1>
+        <p class="page-intro">Dit næste besøg starter her.</p>
+      </header>
+
+      <div v-if="savedEvents.length" class="events-list">
+        <button
+          v-for="event in savedEvents"
+          :key="event.id"
+          type="button"
+          class="event-button"
+          @click="router.push({ name: 'events', query: { event: event.id, from: 'saved' } })"
+        >
           <EventCard :event="event" />
         </button>
-      </template>
-      <p v-else class="empty-saved">Du har ikke gemt nogen events endnu. Find et event, du har lyst til at besøge.</p>
+      </div>
+
+      <p v-else class="empty-saved">
+        Du har ikke gemt nogen events endnu. Find et event, du har lyst til at besøge.
+      </p>
+
       <div class="saved-info">
-        <svg class="saved-info__bookmark" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z" /></svg>
+        <svg
+          class="saved-info__bookmark"
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linejoin="round"
+        >
+          <path d="M6 3h12v18l-6-4-6 4z" />
+        </svg>
         <h2>Én god grund til at komme igen.</h2>
         <p>Et gemt event er en huskeliste, ikke en billet.</p>
       </div>
-      <button class="action action--full" type="button" @click="goToAll">Opdag flere events <span>→</span></button>
+
+      <button class="action-btn" type="button" @click="goToAll">
+        <span>Opdag flere events</span>
+        <span class="arrow">→</span>
+      </button>
     </template>
+
   </div>
 </template>
 

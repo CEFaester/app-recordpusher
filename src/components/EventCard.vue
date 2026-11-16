@@ -27,19 +27,24 @@ const posterLines = computed(() => props.event.poster.split('\n'))
 </template>
 
 <style lang="scss" scoped>
+
 .event-card {
   width: 100%;
   overflow: hidden;
-  border-radius: 6px;
-  background: #fff;
+  background-color: $color-primary;
 }
+
 .event-card__poster {
-  background: $color-accent-secondary;
+  background-color: $color-accent-secondary;
   height: 150px;
   position: relative;
   overflow: hidden;
-  &--red { background: $color-accent-primary; }
+
+  &--red {
+    background-color: $color-accent-primary;
+  }
 }
+
 .event-card__vinyl {
   position: absolute;
   width: 152px;
@@ -47,21 +52,49 @@ const posterLines = computed(() => props.event.poster.split('\n'))
   top: 22px;
   right: -27px;
 }
+
 .event-card__poster-title {
   position: relative;
   z-index: 1;
-  padding: 13px 18px;
+  padding: $space-md;
   font-family: $font-family-heading;
-  font-size: 42px;
-  line-height: 43px;
+  font-size: 2.6rem;
+  line-height: 1.05;
   color: $color-text;
   display: flex;
   flex-direction: column;
 }
-.event-card__poster--red .event-card__poster-title { color: $color-text-inverted; }
-.event-card__details { padding: 16px; display: flex; flex-direction: column; gap: 7px; }
-.event-card__details p { margin: 0; }
-.event-card__date { font-size: 12px; line-height: 16px; font-weight: 700; color: $color-accent-primary; }
-.event-card__details h3 { font-family: $font-family-heading; font-size: 21px; line-height: 27px; font-weight: 400; margin: 0; }
-.event-card__meta { font-size: 12px; line-height: 16px; color: #68655e; }
+
+.event-card__poster--red .event-card__poster-title {
+  color: $color-text-inverted;
+}
+
+.event-card__details {
+  padding: $padding-card;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.event-card__date {
+  margin: 0;
+  font-size: $font-size-small;
+  font-weight: 700;
+  color: $color-accent-primary;
+}
+
+.event-card__title {
+  margin: 0;
+  font-family: $font-family-heading;
+  font-size: 1.35rem;
+  line-height: 1.25;
+  font-weight: 400;
+  color: $color-text;
+}
+
+.event-card__meta {
+  margin: 0;
+  font-size: $font-size-small;
+  color: color.adjust($color-text, $lightness: 30%);
+}
 </style>
