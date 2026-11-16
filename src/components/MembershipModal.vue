@@ -12,30 +12,32 @@ defineEmits(['close'])
 
 <template>
   <Teleport to="body">
-    <!-- Den mørke baggrund der fader ind -->
     <Transition name="fade">
       <div v-if="isOpen" class="modal-overlay" @click="$emit('close')"></div>
     </Transition>
 
-    <!-- Selve hvid boks der glider ned fra toppen -->
     <Transition name="slide-down">
       <div v-if="isOpen" class="modal-content">
-        
         <div class="modal-header">
           <h3>Dit Medlemskort</h3>
           <button class="close-btn" @click="$emit('close')" aria-label="Luk">&times;</button>
         </div>
 
-        <div class="qr-container">
-          <!-- API'et genererer en rigtig QR-kode ud fra brugerens ID -->
-          <img 
-            :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${userId}`" 
-            alt="QR Kode" 
-            class="qr-image" 
-          />
-        </div>
-        
-        <p class="user-id">ID: <span>{{ userId }}</span></p>
+        <template v-if="userId">
+          <div class="qr-container">
+            <img 
+              :src="`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(userId)}`" 
+              alt="QR Kode" 
+              class="qr-image" 
+            />
+          </div>
+          
+          <p class="user-id">ID: <span>{{ userId }}</span></p>
+        </template>
+
+        <p v-else class="not-logged-in">
+          Log ind på din profil for at se dit personlige medlemskort og QR-kode.
+        </p>
       </div>
     </Transition>
   </Teleport>

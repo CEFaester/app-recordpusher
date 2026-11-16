@@ -2,9 +2,9 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getShopItems } from '@/services/shopService'
+import { currentUser } from '@/services/userService'
 
 const router = useRouter()
-const userPoints = ref(0)
 const shopItems = ref([])
 const isLoading = ref(true)
 const errorMessage = ref('')
@@ -30,14 +30,15 @@ const handlePurchase = (item) => {
   <div class="points-view">
     <h1 class="page-title">DET GIVER <br> NOGET IGEN.</h1>
     
-    <!-- Point Saldo Boks -->
     <header class="balance-card">
       <h3 class="balance-title">Dine Point</h3>
       <div class="balance-amount">
-        <span class="number">{{ userPoints }}</span>
+        <span class="number">{{ currentUser ? currentUser.points : 0 }}</span>
         <span class="label">POINT</span>
       </div>
-      <p class="balance-desc">Brug dine point i butikken herunder</p>
+      <p class="balance-desc">
+        {{ currentUser ? 'Brug dine point i butikken herunder' : 'Log ind på din profil for at bruge point' }}
+      </p>
     </header>
 
     <!-- Point Butik -->

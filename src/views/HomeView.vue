@@ -2,21 +2,25 @@
 import { useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
 import IconPoints from '@/components/icons/IconPoints.vue'
+import IconArrow from '@/components/icons/IconArrow.vue'
 import { events } from '@/services/eventService'
+import { currentUser } from '@/services/userService'
 import vinyl from '@/assets/event-vinyl.svg'
 
 const router = useRouter()
 
-// Forsiden viser kun det første event. Resten ligger på eventsiden.
 function openEvent() {
+  if (!events.length) return
   router.push({ name: 'events', query: { event: events[0].id } })
 }
 </script>
 
 <template>
   <div class="home-view">
-    <p class="eyebrow">DIN LOKALE PLADESPILLER</p>
-    <h1>MERE END<br />EN PLADEBUTIK.</h1>
+    <header class="page-header">
+      <p class="eyebrow">DIN LOKALE PLADESPILLER</p>
+      <h1 class="page-title">MERE END<br />EN PLADEBUTIK.</h1>
+    </header>
 
     <RouterLink :to="{ name: 'events' }" class="campaign" aria-label="Se kommende events">
       <img :src="vinyl" class="campaign__vinyl" alt="" />
@@ -26,22 +30,30 @@ function openEvent() {
     </RouterLink>
 
     <RouterLink :to="{ name: 'points' }" class="points-preview">
-      <span class="points-preview__headline">
-        <IconPoints class="points-preview__icon" />
-        <strong>367 POINT</strong>
-      </span>
-      <span class="points-preview__description">83 point til din næste T-shirt.</span>
+      <div class="points-preview__content">
+        <span class="points-preview__headline">
+          <IconPoints class="points-preview__icon" />
+          <strong>{{ currentUser ? currentUser.points : 0 }} POINT</strong>
+        </span>
+        <span class="points-preview__description">
+          {{ currentUser ? 'Brug dine point i pointbutikken.' : 'Log ind på din profil for at samle point.' }}
+        </span>
+      </div>
+      <IconArrow class="points-preview__arrow" />
     </RouterLink>
 
-    <div class="home-view__section-title">
-      <h2>NÆSTE GANG HOS OS</h2>
-      <RouterLink :to="{ name: 'events' }">Se alle →</RouterLink>
-    </div>
+    <section class="home-events">
+      <div class="section-header">
+        <h2 class="section-title">NÆSTE GANG HOS OS</h2>
+        <RouterLink :to="{ name: 'events' }" class="section-link">Se alle →</RouterLink>
+      </div>
 
-    <button type="button" class="home-view__event" @click="openEvent">
-      <EventCard :event="events[0]" />
-    </button>
-    <p class="home-view__footer">Musik er bedre, når vi deler den.</p>
+      <button v-if="events.length" type="button" class="event-trigger" @click="openEvent">
+        <EventCard :event="events[0]" />
+      </button>
+    </section>
+
+    <p class="home-footer">Musik er bedre, når vi deler den.</p>
   </div>
 </template>
 

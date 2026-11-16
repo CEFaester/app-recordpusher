@@ -2,25 +2,54 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import IconArrow from '@/components/icons/IconArrow.vue'
+import IconQRCode from '@/components/icons/IconQRCode.vue'
+import MembershipModal from '@/components/MembershipModal.vue'
+import {
+  currentUser,
+  isAuthLoading,
+  loginUser,
+  registerUser,
+  logoutUser
+} from '@/services/userService'
 
 const router = useRouter()
 
-// =========================================
-// TILSTANDE & FORMULAR (Login/Opret)
-// =========================================
-const isLoggedIn = ref(true)
 const isRegistering = ref(false)
+const isCardOpen = ref(false)
+const isSubmitting = ref(false)
+const name = ref('')
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 
-const handleAuth = () => {
-  if (!email.value || !password.value) {
-    errorMessage.value = 'Udfyld venligst både email og adgangskode.'
+const handleAuth = async () => {
+  if (!email.value || !password.value || (isRegistering.value && !name.value)) {
+    errorMessage.value = 'Udfyld venligst alle felter.'
     return
   }
-  isLoggedIn.value = true
-  errorMessage.value = ''
+
+  try {
+    isSubmitting.value = true
+    errorMessage.value = ''
+
+    if (isRegistering.value) {
+      await registerUser({
+        name: name.value,
+        email: email.value,
+        password: password.value
+      })
+    } else {
+      await loginUser(email.value, password.value)
+    }
+
+    name.value = ''
+    email.value = ''
+    password.value = ''
+  } catch (err) {
+    errorMessage.value = err.message
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const toggleMode = () => {
@@ -29,22 +58,9 @@ const toggleMode = () => {
 }
 
 const handleLogout = () => {
-  isLoggedIn.value = false
-  email.value = ''
-  password.value = ''
+  logoutUser()
 }
 
-// =========================================
-// PROFIL DATA (Gøres klar til database)
-// =========================================
-const userProfile = ref({
-  name: 'Carl Emil',
-  subtitle: 'Medlem siden 2026',
-  points: 1450,
-  avatarUrl: ''
-})
-
-// Menu-punkterne
 const profileMenu = [
   { id: 1, label: 'Mine Events', routeName: 'saved-events' },
   { id: 2, label: 'Din Musik Smag', routeName: '' },
@@ -52,20 +68,20 @@ const profileMenu = [
   { id: 4, label: 'Indstillinger', routeName: '' }
 ]
 
-// Navigation for menupunkter
 const navigateTo = (routeName) => {
-  console.log(`Navigerer til: ${routeName}`)
-  router.push({ name: routeName }) // Aktiver dette, når ruterne er defineret
+  if (!routeName) return
+  router.push({ name: routeName })
 }
 </script>
 
 <template>
   <div class="profile-view">
-    
+    <p v-if="isAuthLoading" class="loading-text">Indlæser profil...</p>
+
     <!-- =========================================
          VISES NÅR MAN IKKE ER LOGGET IND
          ========================================= -->
-    <section v-if="!isLoggedIn" class="auth-section">
+    <section v-else-if="!currentUser" class="auth-section">
       <header class="auth-header">
         <h2 class="title">{{ isRegistering ? 'Opret Profil' : 'Log Ind' }}</h2>
         <p class="subtitle">
@@ -76,6 +92,11 @@ const navigateTo = (routeName) => {
       </header>
 
       <form @submit.prevent="handleAuth" class="auth-form">
+        <div v-if="isRegistering" class="input-group">
+          <label for="name">Navn</label>
+          <input type="text" id="name" v-model="name" placeholder="Dit navn" class="form-input" />
+        </div>
+
         <div class="input-group">
           <label for="email">Email</label>
           <input type="email" id="email" v-model="email" placeholder="din@email.dk" class="form-input" />
@@ -88,8 +109,8 @@ const navigateTo = (routeName) => {
 
         <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
-        <button type="submit" class="primary-btn">
-          {{ isRegistering ? 'Opret konto' : 'Log ind' }}
+        <button type="submit" class="primary-btn" :disabled="isSubmitting">
+          {{ isSubmitting ? 'Vent venligst...' : (isRegistering ? 'Opret konto' : 'Log ind') }}
         </button>
       </form>
 
@@ -98,35 +119,40 @@ const navigateTo = (routeName) => {
       </button>
     </section>
 
-
     <!-- =========================================
          VISES NÅR MAN ER LOGGET IND
          ========================================= -->
     <section v-else class="profile-content">
-      
-      <!-- 1. Header -->
       <header class="profile-header">
         <div class="avatar">
-          <!-- Viser et rigtigt billede hvis avatarUrl findes, ellers første bogstav i navnet -->
-          <img v-if="userProfile.avatarUrl" :src="userProfile.avatarUrl" alt="Profilbillede" />
-          <span v-else class="avatar-placeholder">{{ userProfile.name.charAt(0) }}</span>
+          <img v-if="currentUser.avatarUrl" :src="currentUser.avatarUrl" alt="Profilbillede" />
+          <span v-else class="avatar-placeholder">{{ currentUser.name.charAt(0) }}</span>
         </div>
+
         <div class="user-info">
-          <h2 class="user-greeting">Hej, {{ userProfile.name }}</h2>
-          <p class="user-subtitle">{{ userProfile.subtitle }}</p>
+          <h2 class="user-greeting">Hej, {{ currentUser.name }}</h2>
+          <p class="user-subtitle">Medlem siden {{ currentUser.memberSince }}</p>
+          <p class="user-member-code">ID: {{ currentUser.memberCode }}</p>
         </div>
+
+        <button
+          type="button"
+          class="card-trigger-btn"
+          @click="isCardOpen = true"
+          aria-label="Åbn medlemskort"
+        >
+          <IconQRCode class="qr-mini-icon" />
+        </button>
       </header>
 
-      <!-- 2. Point Boks -->
       <button class="points-banner" @click="router.push({ name: 'points' })">
         <div class="banner-text">
           <span class="banner-label">DIN MUSIK. DIT FÆLLESKAB.</span>
-          <span class="banner-amount">{{ userProfile.points }} point</span>
+          <span class="banner-amount">{{ currentUser.points }} point</span>
         </div>
         <IconArrow class="banner-icon" />
       </button>
 
-      <!-- 3. Kolonne med Menu Punkter -->
       <nav class="profile-menu-list">
         <button 
           v-for="item in profileMenu" 
@@ -139,10 +165,14 @@ const navigateTo = (routeName) => {
         </button>
       </nav>
 
-      <!-- Log ud knap i bunden -->
       <button @click="handleLogout" class="secondary-btn logout-btn">Log ud</button>
-    </section>
 
+      <MembershipModal 
+        :is-open="isCardOpen" 
+        :user-id="currentUser.memberCode" 
+        @close="isCardOpen = false" 
+      />
+    </section>
   </div>
 </template>
 
@@ -248,6 +278,19 @@ const navigateTo = (routeName) => {
   text-decoration: underline;
 }
 
+.card-trigger-btn { 
+  background-color: $color-primary; 
+  border: none; 
+  padding: $space-sm; 
+  color: $color-text; 
+  cursor: pointer; 
+  display: flex; 
+  
+  .qr-mini-icon { 
+    width: 28px; height: 28px; 
+  } 
+}
+
 /* =========================================
    PROFIL INDHOLD (Klargjort til senere)
    ========================================= */
@@ -264,7 +307,6 @@ const navigateTo = (routeName) => {
   color: $color-text;
   margin-top: $space-md;
 }
-
 
 /* =========================================
    PROFIL INDHOLDET
@@ -307,9 +349,18 @@ const navigateTo = (routeName) => {
 }
 
 .user-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.user-member-code { 
+  font-family: monospace; 
+  font-size: $font-size-small; 
+  font-weight: 700; 
+  color: $color-accent-primary; 
+  margin: 2px 0 0 0; 
 }
 
 .user-greeting {

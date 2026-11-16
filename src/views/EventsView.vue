@@ -1,23 +1,25 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
 import IconEvents from '@/components/icons/IconEvents.vue'
 import IconHome from '@/components/icons/IconHome.vue'
 import IconPoints from '@/components/icons/IconPoints.vue'
-import { events, getSavedEventIds, saveEventIds } from '@/services/eventService'
+import { events } from '@/services/eventService'
+import { currentUser, toggleUserSavedEvent } from '@/services/userService'
 import vinyl from '@/assets/event-vinyl.svg'
 
 const route = useRoute()
 const router = useRouter()
-const savedIds = ref(getSavedEventIds())
 
 const selectedEvent = computed(() =>
   events.find((event) => event.id === route.query.event)
 )
-const isSaved = computed(
-  () => !!selectedEvent.value && savedIds.value.includes(selectedEvent.value.id)
-)
+
+const isSaved = computed(() => {
+  if (!currentUser.value || !selectedEvent.value) return false
+  return (currentUser.value.savedEvents || []).includes(selectedEvent.value.id)
+})
 
 function goToSaved() {
   router.push({ name: 'saved-events' })
@@ -27,18 +29,14 @@ function openEvent(event) {
   router.push({ name: 'events', query: { event: event.id } })
 }
 
-function toggleSaved() {
+async function toggleSaved() {
+  if (!currentUser.value) {
+    router.push({ name: 'profile' })
+    return
+  }
   if (!selectedEvent.value) return
-  const id = selectedEvent.value.id
-  const nextIds = savedIds.value.includes(id)
-    ? savedIds.value.filter((saved) => saved !== id)
-    : [...savedIds.value, id]
-  if (saveEventIds(nextIds)) savedIds.value = nextIds
+  await toggleUserSavedEvent(selectedEvent.value.id)
 }
-
-watch(() => route.query, () => {
-  savedIds.value = getSavedEventIds()
-})
 </script>
 
 <template>
@@ -74,7 +72,9 @@ watch(() => route.query, () => {
 
       <div class="detail-actions">
         <button class="action-btn action-btn--selected" type="button" @click="toggleSaved">
-          <span>{{ isSaved ? 'Fjern fra gemte' : 'Gem event' }}</span>
+          <span>
+            {{ !currentUser ? 'Log ind for at gemme' : (isSaved ? 'Fjern fra gemte' : 'Gem event') }}
+          </span>
           <span class="arrow">→</span>
         </button>
 

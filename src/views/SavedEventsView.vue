@@ -1,15 +1,17 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
-import { events, getSavedEventIds } from '@/services/eventService'
+import { events } from '@/services/eventService'
+import { currentUser } from '@/services/userService'
 
 const router = useRouter()
-const savedIds = ref(getSavedEventIds())
 
-const savedEvents = computed(() =>
-  events.filter((event) => savedIds.value.includes(event.id))
-)
+const savedEvents = computed(() => {
+  if (!currentUser.value) return []
+  const userSavedIds = currentUser.value.savedEvents || []
+  return events.filter((event) => userSavedIds.includes(event.id))
+})
 
 function openEvent(event) {
   router.push({ name: 'events', query: { event: event.id } })
@@ -17,6 +19,10 @@ function openEvent(event) {
 
 function goToAllEvents() {
   router.push({ name: 'events' })
+}
+
+function goToProfile() {
+  router.push({ name: 'profile' })
 }
 </script>
 
@@ -28,42 +34,56 @@ function goToAllEvents() {
       <p class="page-intro">Dit næste besøg starter her.</p>
     </header>
 
-    <div v-if="savedEvents.length" class="events-list">
-      <button
-        v-for="event in savedEvents"
-        :key="event.id"
-        type="button"
-        class="event-button"
-        @click="openEvent(event)"
-      >
-        <EventCard :event="event" />
+    <!-- Hvis man IKKE er logget ind -->
+    <template v-if="!currentUser">
+      <p class="empty-saved">
+        Du skal være logget ind på din profil for at se og gemme events.
+      </p>
+      <button class="action-btn action-btn--selected" type="button" @click="goToProfile">
+        <span>Log ind på profil</span>
+        <span class="arrow">→</span>
       </button>
-    </div>
+    </template>
 
-    <p v-else class="empty-saved">
-      Du har ikke gemt nogen events endnu. Find et event, du har lyst til at besøge.
-    </p>
+    <!-- Hvis man ER logget ind -->
+    <template v-else>
+      <div v-if="savedEvents.length" class="events-list">
+        <button
+          v-for="event in savedEvents"
+          :key="event.id"
+          type="button"
+          class="event-button"
+          @click="openEvent(event)"
+        >
+          <EventCard :event="event" />
+        </button>
+      </div>
 
-    <div class="saved-info">
-      <svg
-        class="saved-info__bookmark"
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linejoin="round"
-      >
-        <path d="M6 3h12v18l-6-4-6 4z" />
-      </svg>
-      <h2>Én god grund til at komme igen.</h2>
-      <p>Et gemt event er en huskeliste, ikke en billet.</p>
-    </div>
+      <p v-else class="empty-saved">
+        Du har ikke gemt nogen events endnu. Find et event, du har lyst til at besøge.
+      </p>
 
-    <button class="action-btn" type="button" @click="goToAllEvents">
-      <span>Opdag flere events</span>
-      <span class="arrow">→</span>
-    </button>
+      <div class="saved-info">
+        <svg
+          class="saved-info__bookmark"
+          aria-hidden="true"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.7"
+          stroke-linejoin="round"
+        >
+          <path d="M6 3h12v18l-6-4-6 4z" />
+        </svg>
+        <h2>Én god grund til at komme igen.</h2>
+        <p>Et gemt event er en huskeliste, ikke en billet.</p>
+      </div>
+
+      <button class="action-btn" type="button" @click="goToAllEvents">
+        <span>Opdag flere events</span>
+        <span class="arrow">→</span>
+      </button>
+    </template>
   </div>
 </template>
 

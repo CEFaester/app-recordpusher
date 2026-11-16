@@ -2,12 +2,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getShopItemById } from '@/services/shopService'
+import { currentUser, spendUserPoints } from '@/services/userService'
 import IconArrow from '@/components/icons/IconArrow.vue'
 
 const route = useRoute()
 
 const item = ref(null)
 const isLoading = ref(true)
+const purchaseError = ref('')
 
 onMounted(async () => {
   try {
@@ -20,9 +22,6 @@ onMounted(async () => {
   }
 })
 
-// =========================================
-// SWIPE-KNAP LOGIK
-// =========================================
 const trackRef = ref(null)
 const dragX = ref(0)
 const isDragging = ref(false)
@@ -41,6 +40,7 @@ const swipeProgress = computed(() => {
 
 const onPointerDown = (e) => {
   if (isPurchased.value || !trackRef.value) return
+  purchaseError.value = ''
   isDragging.value = true
   maxDrag = trackRef.value.clientWidth - THUMB_WIDTH - TRACK_PADDING * 2
   startX = e.clientX - dragX.value
@@ -53,17 +53,23 @@ const onPointerMove = (e) => {
   dragX.value = Math.max(0, Math.min(nextX, maxDrag))
 }
 
-const onPointerUp = () => {
+const onPointerUp = async () => {
   if (!isDragging.value) return
   isDragging.value = false
 
   if (maxDrag > 0 && dragX.value >= maxDrag * 0.85 && item.value) {
     dragX.value = maxDrag
-    redeemCode.value = `RP-${item.value.id}-${Math.floor(100000 + Math.random() * 900000)}`
-    
-    setTimeout(() => {
+
+    try {
+      // Trækker point fra brugeren i Firebase
+      await spendUserPoints(item.value.cost)
+      redeemCode.value = `RP-${item.value.id}-${Math.floor(100000 + Math.random() * 900000)}`
       isPurchased.value = true
-    }, 150)
+    } catch (err) {
+      // Hvis man ikke er logget ind eller mangler point, nulstilles swipe-knappen
+      dragX.value = 0
+      purchaseError.value = err.message
+    }
   } else {
     dragX.value = 0
   }
@@ -89,6 +95,8 @@ const qrCodeUrl = computed(() => {
           <div class="product-price">{{ item.cost }} POINT</div>
         </div>
       </div>
+      
+      <p v-if="purchaseError" class="purchase-error">{{ purchaseError }}</p>
 
       <div class="swipe-container">
         <div ref="trackRef" class="swipe-track">
@@ -194,6 +202,14 @@ const qrCodeUrl = computed(() => {
 /* =========================================
    SWIPE-KNAP LIGE OVER BOTTOMNAV
    ========================================= */
+
+.purchase-error {
+  color: $color-accent-primary;
+  font-size: $font-size-small;
+  font-weight: 600;
+  text-align: center;
+}
+
 .swipe-container {
   position: fixed;
   // 64px er højden på din BottomNav + lidt luft ($space-md)
