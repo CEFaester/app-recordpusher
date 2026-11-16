@@ -46,16 +46,16 @@ const userProfile = ref({
 
 // Menu-punkterne
 const profileMenu = [
-  { id: 1, label: 'Mine Events', routeName: 'profile' },
-  { id: 2, label: 'Din Musik Smag', routeName: 'profile' },
-  { id: 3, label: 'Ordrehistorik', routeName: 'profile' },
-  { id: 4, label: 'Indstillinger', routeName: 'profile' }
+  { id: 1, label: 'Mine Events', routeName: 'saved-events' },
+  { id: 2, label: 'Din Musik Smag', routeName: '' },
+  { id: 3, label: 'Ordrehistorik', routeName: '' },
+  { id: 4, label: 'Indstillinger', routeName: '' }
 ]
 
 // Navigation for menupunkter
 const navigateTo = (routeName) => {
   console.log(`Navigerer til: ${routeName}`)
-  // router.push({ name: routeName }) // Aktiver dette, når ruterne er defineret
+  router.push({ name: routeName }) // Aktiver dette, når ruterne er defineret
 }
 </script>
 
