@@ -12,22 +12,15 @@ const route = useRoute()
 const router = useRouter()
 const savedIds = ref(getSavedEventIds())
 
-const activeView = computed(() => {
-  if (route.query.saved === 'true') return 'saved'
-  if (events.some(event => event.id === route.query.event)) return 'detail'
-  return 'all'
-})
-
-const selectedEvent = computed(() => events.find(event => event.id === route.query.event))
-const savedEvents = computed(() => events.filter(event => savedIds.value.includes(event.id)))
-const isSaved = computed(() => !!selectedEvent.value && savedIds.value.includes(selectedEvent.value.id))
-
-function goToAll() {
-  router.push({ name: 'events' })
-}
+const selectedEvent = computed(() =>
+  events.find((event) => event.id === route.query.event)
+)
+const isSaved = computed(
+  () => !!selectedEvent.value && savedIds.value.includes(selectedEvent.value.id)
+)
 
 function goToSaved() {
-  router.push({ name: 'events', query: { saved: 'true' } })
+  router.push({ name: 'saved-events' })
 }
 
 function openEvent(event) {
@@ -38,7 +31,7 @@ function toggleSaved() {
   if (!selectedEvent.value) return
   const id = selectedEvent.value.id
   const nextIds = savedIds.value.includes(id)
-    ? savedIds.value.filter(saved => saved !== id)
+    ? savedIds.value.filter((saved) => saved !== id)
     : [...savedIds.value, id]
   if (saveEventIds(nextIds)) savedIds.value = nextIds
 }
@@ -50,49 +43,8 @@ watch(() => route.query, () => {
 
 <template>
   <div class="events-view">
-    
-    <!-- =========================================
-         1. ALLE EVENTS
-         ========================================= -->
-    <template v-if="activeView === 'all'">
-      <header class="page-header">
-        <p class="eyebrow">OPDAG · MØD OP · KOM IGEN</p>
-        <h1 class="page-title">DET SKER<br />I BUTIKKEN.</h1>
-        <p class="page-intro">Små events. Store musikøjeblikke.</p>
-      </header>
-
-      <div class="tabs-grid" aria-label="Vis events">
-        <button class="action-btn action-btn--selected" type="button" aria-current="page">
-          <span>Alle events</span>
-          <span class="arrow">→</span>
-        </button>
-        <button class="action-btn" type="button" @click="goToSaved">
-          <span>Gemte</span>
-          <span class="arrow">→</span>
-        </button>
-      </div>
-
-      <p class="section-label">NOVEMBER / KOMMENDE EVENTS</p>
-
-      <div class="events-list">
-        <button
-          v-for="event in events"
-          :key="event.id"
-          type="button"
-          class="event-button"
-          @click="openEvent(event)"
-        >
-          <EventCard :event="event" />
-        </button>
-      </div>
-
-      <p class="muted-note">Events her er konceptindhold til prototypen.</p>
-    </template>
-
-    <!-- =========================================
-         2. EVENT DETALJE
-         ========================================= -->
-    <template v-else-if="activeView === 'detail' && selectedEvent">
+    <!-- 1. EVENT DETALJE -->
+    <template v-if="selectedEvent">
       <div class="subview-header">
         <span>{{ selectedEvent.id === 'fredagslyt' ? 'FREDAGSLYT' : 'VINYL & VENNER' }}</span>
       </div>
@@ -143,58 +95,41 @@ watch(() => route.query, () => {
       </div>
     </template>
 
-    <!-- =========================================
-         3. GEMTE EVENTS
-         ========================================= -->
-    <template v-else-if="activeView === 'saved'">
-      <div class="subview-header">
-        <span>GEMTE EVENTS</span>
-      </div>
-
+    <!-- 2. ALLE EVENTS -->
+    <template v-else>
       <header class="page-header">
-        <p class="eyebrow">DIN NÆSTE MUSIKPAUSE</p>
-        <h1 class="page-title">GEMT TIL DIG.</h1>
-        <p class="page-intro">Dit næste besøg starter her.</p>
+        <p class="eyebrow">OPDAG · MØD OP · KOM IGEN</p>
+        <h1 class="page-title">DET SKER<br />I BUTIKKEN.</h1>
+        <p class="page-intro">Små events. Store musikøjeblikke.</p>
       </header>
 
-      <div v-if="savedEvents.length" class="events-list">
+      <div class="tabs-grid" aria-label="Vis events">
+        <button class="action-btn action-btn--selected" type="button" aria-current="page">
+          <span>Alle events</span>
+          <span class="arrow">→</span>
+        </button>
+        <button class="action-btn" type="button" @click="goToSaved">
+          <span>Gemte</span>
+          <span class="arrow">→</span>
+        </button>
+      </div>
+
+      <p class="section-label">NOVEMBER / KOMMENDE EVENTS</p>
+
+      <div class="events-list">
         <button
-          v-for="event in savedEvents"
+          v-for="event in events"
           :key="event.id"
           type="button"
           class="event-button"
-          @click="router.push({ name: 'events', query: { event: event.id, from: 'saved' } })"
+          @click="openEvent(event)"
         >
           <EventCard :event="event" />
         </button>
       </div>
 
-      <p v-else class="empty-saved">
-        Du har ikke gemt nogen events endnu. Find et event, du har lyst til at besøge.
-      </p>
-
-      <div class="saved-info">
-        <svg
-          class="saved-info__bookmark"
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.7"
-          stroke-linejoin="round"
-        >
-          <path d="M6 3h12v18l-6-4-6 4z" />
-        </svg>
-        <h2>Én god grund til at komme igen.</h2>
-        <p>Et gemt event er en huskeliste, ikke en billet.</p>
-      </div>
-
-      <button class="action-btn" type="button" @click="goToAll">
-        <span>Opdag flere events</span>
-        <span class="arrow">→</span>
-      </button>
+      <p class="muted-note">Events her er konceptindhold til prototypen.</p>
     </template>
-
   </div>
 </template>
 
@@ -206,9 +141,6 @@ watch(() => route.query, () => {
   gap: $space-lg;
 }
 
-/* =========================================
-   HEADER & TYPOGRAFI
-   ========================================= */
 .page-header {
   display: flex;
   flex-direction: column;
@@ -252,9 +184,6 @@ watch(() => route.query, () => {
   margin: 0;
 }
 
-/* =========================================
-   KNAPPER & TABS
-   ========================================= */
 .tabs-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -294,9 +223,6 @@ watch(() => route.query, () => {
   }
 }
 
-/* =========================================
-   EVENT LISTE
-   ========================================= */
 .events-list {
   display: flex;
   flex-direction: column;
@@ -321,9 +247,6 @@ watch(() => route.query, () => {
   }
 }
 
-/* =========================================
-   UNDERSIDE HEADER & DETALJER
-   ========================================= */
 .subview-header {
   padding-bottom: $space-sm;
   border-bottom: 1px solid color.adjust($color-primary, $lightness: -12%);
@@ -433,46 +356,6 @@ watch(() => route.query, () => {
 
   strong {
     color: $color-text;
-  }
-}
-
-/* =========================================
-   GEMTE EVENTS
-   ========================================= */
-.empty-saved {
-  margin: 0;
-  padding: $space-lg $space-md;
-  background-color: $color-primary;
-  font-size: $font-size-base;
-  line-height: 1.4;
-  color: color.adjust($color-text, $lightness: 30%);
-}
-
-.saved-info {
-  padding: $space-md;
-  background-color: $color-primary;
-
-  &__bookmark {
-    width: 24px;
-    height: 24px;
-    display: block;
-    margin-bottom: $space-sm;
-    color: $color-text;
-  }
-
-  h2 {
-    font-family: $font-family-heading;
-    font-size: 1.35rem;
-    font-weight: 400;
-    color: $color-text;
-    margin: 0;
-  }
-
-  p {
-    font-size: $font-size-base;
-    line-height: 1.4;
-    color: color.adjust($color-text, $lightness: 30%);
-    margin: $space-xs 0 0 0;
   }
 }
 </style>

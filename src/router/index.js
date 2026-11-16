@@ -12,6 +12,7 @@ const router = createRouter({
       children: [
         { path: '', name: 'home', component: () => import('@/views/HomeView.vue') },
         { path: 'events', name: 'events', component: () => import('@/views/EventsView.vue') },
+        { path: 'saved-events', name: 'saved-events', component: () => import('@/views/SavedEventsView.vue') },
         { path: 'points', name: 'points', component: () => import('@/views/PointsView.vue') },
         { path: 'profile', name: 'profile', component: () => import('@/views/ProfileView.vue') },
         { path: 'points/:id', name: 'purchase', component: () => import('@/views/PurchaseView.vue') }
