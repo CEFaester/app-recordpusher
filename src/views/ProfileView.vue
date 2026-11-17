@@ -134,15 +134,6 @@ const navigateTo = (routeName) => {
           <p class="user-subtitle">Medlem siden {{ currentUser.memberSince }}</p>
           <p class="user-member-code">ID: {{ currentUser.memberCode }}</p>
         </div>
-
-        <button
-          type="button"
-          class="card-trigger-btn"
-          @click="isCardOpen = true"
-          aria-label="Åbn medlemskort"
-        >
-          <IconQRCode class="qr-mini-icon" />
-        </button>
       </header>
 
       <button class="points-banner" @click="router.push({ name: 'points' })">
