@@ -210,5 +210,10 @@ function goToProfile() {
     font-size: 1.25rem;
     font-weight: 400;
   }
+
+  &--selected { 
+    background-color: $color-text; 
+    color: $color-text-inverted; 
+}
 }
 </style>

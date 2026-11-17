@@ -1,47 +1,57 @@
-// Midlertidig mock-data (fjernes når Firebase kobles på)
-const MOCK_SHOP_ITEMS = [
-  { id: 1, name: 'Eksklusiv T-shirt', cost: 500, icon: '👕' },
-  { id: 2, name: 'Kold Sodavand', cost: 150, icon: '🥤' },
-  { id: 3, name: 'Musik Plakat', cost: 300, icon: '🖼️' },
-  { id: 4, name: 'Øl', cost: 200, icon: '🍺' },
-  { id: 5, name: 'Film Plakat', cost: 100, icon: '🖼️' },
-  { id: 6, name: 'Puslespil', cost: 150, icon: '🧩' }
-]
-
-// Indsæt firebase URL her:
-// const DB_URL = 'https://DIT-PROJEKT-default-rtdb.europe-west1.firebasedatabase.app'
+// API URL til Firebase Realtime Database
+const DB_URL = 'https://record-pusher-app-default-rtdb.europe-west1.firebasedatabase.app/shopItems.json'
 
 /**
- * Henter alle varer til butikken
+ * Henter alle varer fra /shopItems.json i Firebase
  */
 export const getShopItems = async () => {
-  // --- FREMTIDIGT FIREBASE API-KALD ---
-  // const response = await fetch(`${DB_URL}/shopItems.json`)
-  // if (!response.ok) throw new Error('Kunne ikke hente butiksvarer')
-  // const data = await response.json()
-  // return data ? Object.values(data) : []
+  const response = await fetch(`${DB_URL}/shopItems.json`)
+  if (!response.ok) throw new Error('Kunne ikke hente butiksvarer')
+  
+  const data = await response.json()
+  if (!data) return []
 
-  // --- NUVÆRENDE SIMULERET API-KALD ---
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(MOCK_SHOP_ITEMS)
-    }, 300)
-  })
+  return Object.entries(data).map(([id, item]) => ({
+    id,
+    ...item
+  }))
 }
 
 /**
  * Henter én specifik vare ud fra dens ID til betalingssiden
  */
 export const getShopItemById = async (id) => {
-  // --- FREMTIDIGT FIREBASE API-KALD ---
-  // const items = await getShopItems()
-  // return items.find((item) => String(item.id) === String(id)) || null
+  const response = await fetch(`${DB_URL}/shopItems/${id}.json`)
+  if (!response.ok) throw new Error('Kunne ikke hente varen.')
 
-  // --- NUVÆRENDE SIMULERET API-KALD ---
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const found = MOCK_SHOP_ITEMS.find((item) => String(item.id) === String(id))
-      resolve(found || null)
-    }, 300)
+  const item = await response.json()
+  return item ? { id, ...item } : null
+}
+
+/**
+ * Opretter en ny vare i Firebase (bruges på AdminPointsView)
+ */
+export const createShopItem = async (newItem) => {
+  const response = await fetch(`${DB_URL}/shopItems.json`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newItem)
   })
+
+  if (!response.ok) throw new Error('Kunne ikke oprette varen i databasen.')
+
+  const { name: id } = await response.json()
+  return { id, ...newItem }
+}
+
+/**
+ * Sletter en vare i Firebase (bruges på AdminPointsView)
+ */
+export const deleteShopItem = async (id) => {
+  const response = await fetch(`${DB_URL}/shopItems/${id}.json`, {
+    method: 'DELETE'
+  })
+
+  if (!response.ok) throw new Error('Kunne ikke slette varen.')
+  return true
 }
