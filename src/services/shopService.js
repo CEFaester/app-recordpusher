@@ -1,5 +1,5 @@
 // API URL til Firebase Realtime Database
-const DB_URL = 'https://record-pusher-app-default-rtdb.europe-west1.firebasedatabase.app/shopItems.json'
+const DB_URL = 'https://record-pusher-app-default-rtdb.europe-west1.firebasedatabase.app'
 
 /**
  * Henter alle varer fra /shopItems.json i Firebase
