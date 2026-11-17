@@ -88,7 +88,10 @@ const qrCodeUrl = computed(() => {
     <!-- TILSTAND 1: FØR KØB -->
     <template v-else-if="!isPurchased">
       <div class="product-showcase">
-        <div class="product-visual">{{ item.icon }}</div>
+        <div class="product-visual">
+          <img v-if="item.image" :src="item.image" :alt="item.name" />
+          <span v-else>{{ item.icon || '🎁' }}</span>
+        </div>
         
         <div class="product-details">
           <h1 class="product-name">{{ item.name }}</h1>

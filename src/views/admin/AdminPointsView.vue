@@ -1,33 +1,49 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getShopItems } from '@/services/shopService'
+import { getShopItems, createShopItem, deleteShopItem } from '@/services/shopService'
 
 const items = ref([])
 const newName = ref('')
 const newCost = ref('')
+const newImage = ref('')
 const newIcon = ref('🎁')
+const isSaving = ref(false)
 
 onMounted(async () => {
   items.value = await getShopItems()
 })
 
-const addItem = () => {
+const addItem = async () => {
   if (!newName.value || !newCost.value) return
 
-  items.value.push({
-    id: Date.now(),
-    name: newName.value,
-    cost: Number(newCost.value),
-    icon: newIcon.value || '🎁'
-  })
+  try {
+    isSaving.value = true
+    const created = await createShopItem({
+      name: newName.value.trim(),
+      cost: Number(newCost.value),
+      image: newImage.value.trim(),
+      icon: newIcon.value.trim() || '🎁'
+    })
 
-  newName.value = ''
-  newCost.value = ''
-  newIcon.value = '🎁'
+    items.value.push(created)
+    newName.value = ''
+    newCost.value = ''
+    newImage.value = ''
+    newIcon.value = '🎁'
+  } catch (error) {
+    console.error(error)
+  } finally {
+    isSaving.value = false
+  }
 }
 
-const removeItem = (id) => {
-  items.value = items.value.filter((item) => item.id !== id)
+const removeItem = async (id) => {
+  try {
+    await deleteShopItem(id)
+    items.value = items.value.filter((item) => item.id !== id)
+  } catch (error) {
+    console.error(error)
+  }
 }
 </script>
 
@@ -35,22 +51,28 @@ const removeItem = (id) => {
   <div class="admin-page">
     <header class="page-header">
       <h1 class="page-title">Administrer Point Butik</h1>
-      <p class="page-desc">Tilføj eller fjern varer, som brugerne kan købe for deres point.</p>
+      <p class="page-desc">
+        Brug enten en lokal sti (f.eks. <code>/images/shop/tshirt.png</code>) eller en billed-URL.
+      </p>
     </header>
 
-    <!-- Formular til ny vare (bryder automatisk på små skærme) -->
     <form @submit.prevent="addItem" class="admin-form">
-      <input v-model="newIcon" type="text" placeholder="Ikon (f.eks. 👕)" class="form-input icon-input" />
       <input v-model="newName" type="text" placeholder="Varenavn" class="form-input" required />
       <input v-model="newCost" type="number" placeholder="Pris i point" class="form-input" required />
-      <button type="submit" class="action-btn">+ Tilføj vare</button>
+      <input v-model="newImage" type="text" placeholder="Billedsti (/images/shop/... eller https://...)" class="form-input" />
+      <input v-model="newIcon" type="text" placeholder="Reserve-emoji (🎁)" class="form-input icon-input" />
+      <button type="submit" class="action-btn" :disabled="isSaving">
+        {{ isSaving ? 'Gemmer...' : '+ Tilføj vare' }}
+      </button>
     </form>
 
-    <!-- Responsivt grid uden media queries -->
     <div class="items-grid">
       <article v-for="item in items" :key="item.id" class="admin-card">
         <div class="card-top">
-          <span class="card-icon">{{ item.icon }}</span>
+          <div class="card-visual">
+            <img v-if="item.image" :src="item.image" :alt="item.name" />
+            <span v-else class="card-icon">{{ item.icon || '🎁' }}</span>
+          </div>
           <span class="card-badge">{{ item.cost }} POINT</span>
         </div>
         <h3 class="card-title">{{ item.name }}</h3>
@@ -127,6 +149,20 @@ const removeItem = (id) => {
   display: flex;
   flex-direction: column;
   gap: $space-sm;
+}
+
+.card-visual { 
+  width: 56px; 
+  height: 56px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  
+  img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+  } 
 }
 
 .card-top {

@@ -56,7 +56,10 @@ const handlePurchase = (item) => {
           class="shop-item"
           @click="handlePurchase(item)"
         >
-          <div class="item-visual">{{ item.icon }}</div>
+          <div class="item-visual">
+            <img v-if="item.image" :src="item.image" :alt="item.name" />
+            <span v-else>{{ item.icon || '🎁' }}</span>
+          </div>
           
           <div class="item-info">
             <h4 class="item-name">{{ item.name }}</h4>
@@ -150,6 +153,10 @@ const handlePurchase = (item) => {
 }
 
 .item-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   flex: 1;
   min-height: 0;
   font-size: 3rem; // Gør emojien stor - udskift med <img> tag senere
