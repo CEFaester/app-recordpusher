@@ -1,16 +1,34 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
-import { events } from '@/services/eventService'
-import { currentUser } from '@/services/userService'
+import { getEvents } from '@/services/eventService'
+import { currentUser, isAuthLoading } from '@/services/userService'
 
 const router = useRouter()
+const events = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
+
+// Event-ID'erne fra profilen matches med de aktuelle events fra Firebase.
+async function loadEvents() {
+  isLoading.value = true
+  errorMessage.value = ''
+  try {
+    events.value = await getEvents()
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(loadEvents)
 
 const savedEvents = computed(() => {
   if (!currentUser.value) return []
   const userSavedIds = currentUser.value.savedEvents || []
-  return events.filter((event) => userSavedIds.includes(event.id))
+  return events.value.filter((event) => userSavedIds.includes(event.id))
 })
 
 function openEvent(event) {
@@ -35,7 +53,8 @@ function goToProfile() {
     </header>
 
     <!-- Hvis man IKKE er logget ind -->
-    <template v-if="!currentUser">
+    <p v-if="isAuthLoading" role="status">Henter din profil...</p>
+    <template v-else-if="!currentUser">
       <p class="empty-saved">
         Du skal være logget ind på din profil for at se og gemme events.
       </p>
@@ -47,7 +66,12 @@ function goToProfile() {
 
     <!-- Hvis man ER logget ind -->
     <template v-else>
-      <div v-if="savedEvents.length" class="events-list">
+      <p v-if="isLoading" role="status">Henter gemte events...</p>
+      <template v-else-if="errorMessage">
+        <p role="alert">{{ errorMessage }}</p>
+        <button class="action-btn" type="button" @click="loadEvents">Prøv igen</button>
+      </template>
+      <div v-else-if="savedEvents.length" class="events-list">
         <button
           v-for="event in savedEvents"
           :key="event.id"

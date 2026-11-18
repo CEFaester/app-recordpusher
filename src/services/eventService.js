@@ -1,46 +1,75 @@
-// Midlertidige eksempelevents fra prototypen. Kan senere erstattes af data fra Firebase.
-export const events = [
-  {
-    id: 'fredagslyt',
-    title: 'Fredagslyt hos RecordPusher',
-    poster: 'FREDAGS\nLYT.',
-    theme: 'yellow',
-    shortDate: 'FRE 13. NOV · 17:00',
-    date: 'Fredag 13. november · 17:00–19:00',
-    meta: 'Gratis · Pladebutik, bar og god musik',
-    description: 'Vi sætter plader på, åbner baren og lytter sammen. Kom med en ven, eller kom som du er. Der er plads til nye ansigter.',
-    points: 25
-  },
-  {
-    id: 'vinyl-venner',
-    title: 'Vinyl & venner',
-    poster: 'VINYL &\nVENNER.',
-    theme: 'red',
-    shortDate: 'LØR 21. NOV · 14:00',
-    date: 'Lørdag 21. november · 14:00',
-    meta: 'Gratis · Tag en plade og en ven med',
-    description: 'Tag din yndlingsplade med, del din musik og mød andre, der elsker vinyl. Alle er velkomne.',
-    points: 25
-  }
-]
+// Samme Firebase-database som shopService.js og userService.js.
+const DB_URL = 'https://record-pusher-app-default-rtdb.europe-west1.firebasedatabase.app'
+const EVENTS_URL = `${DB_URL}/events`
 
-const storageKey = 'recordpusher-saved-events'
+// Firebase returnerer et objekt med ID som nøgle, ikke et almindeligt array.
+export const getEvents = async () => {
+  const response = await fetch(`${EVENTS_URL}.json`)
+  if (!response.ok) throw new Error('Kunne ikke hente events fra Firebase.')
+  const data = await response.json()
+  if (!data) return []
 
-// Gemte events opbevares lokalt, så de stadig er gemt efter genindlæsning.
-export function getSavedEventIds() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(storageKey) || '[]')
-    return Array.isArray(saved) ? saved.filter(id => events.some(event => event.id === id)) : []
-  } catch {
-    return []
-  }
+  return Object.entries(data)
+    .filter(([, event]) => event && typeof event === 'object' && typeof event.title === 'string')
+    .map(([id, event]) => ({
+      ...event,
+      id,
+      poster: event.poster || event.title.toUpperCase(),
+      theme: event.theme === 'red' ? 'red' : 'yellow'
+    }))
+    .sort((a, b) => `${a.day || '9999'} ${a.startTime || ''}`.localeCompare(`${b.day || '9999'} ${b.startTime || ''}`))
 }
 
-export function saveEventIds(ids) {
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(ids))
-    return true
-  } catch {
-    return false
+// Datoen sammenlignes i dansk tid, så forsiden viser det næste kommende event.
+export const getUpcomingEvents = (events) => {
+  const today = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Europe/Copenhagen', year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date())
+  return events.filter((event) => !event.day || event.day >= today)
+}
+
+// POST opretter en ny nøgle i Firebase. Vi gemmer ikke ID'et to gange.
+export const createEvent = async (newEvent) => {
+  const response = await fetch(`${EVENTS_URL}.json`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(newEvent)
+  })
+  if (!response.ok) throw new Error('Kunne ikke oprette eventet i Firebase.')
+  const { name: id } = await response.json()
+  return { ...newEvent, id }
+}
+
+// PATCH ændrer kun felterne på det valgte event, ikke resten af databasen.
+export const updateEvent = async (id, updatedEvent) => {
+  const response = await fetch(`${EVENTS_URL}/${encodeURIComponent(id)}.json`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedEvent)
+  })
+  if (!response.ok) throw new Error('Kunne ikke opdatere eventet i Firebase.')
+  return { ...updatedEvent, id }
+}
+
+export const deleteEvent = async (id) => {
+  const response = await fetch(`${EVENTS_URL}/${encodeURIComponent(id)}.json`, {
+    method: 'DELETE'
+  })
+  if (!response.ok) throw new Error('Kunne ikke slette eventet i Firebase.')
+  return true
+}
+
+// Admin indtaster dato og klokkeslæt én gang. Vi danner teksterne til kort og detaljevisning.
+export const formatEventDates = (day, startTime, endTime) => {
+  const calendarDate = new Date(`${day}T12:00:00Z`)
+  const short = new Intl.DateTimeFormat('da-DK', {
+    weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'
+  }).format(calendarDate).toUpperCase().replace(/\./g, '').replace(/\s*,\s*/g, ' ')
+  const long = new Intl.DateTimeFormat('da-DK', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC'
+  }).format(calendarDate)
+  return {
+    shortDate: `${short} · ${startTime}`,
+    date: `${long.charAt(0).toUpperCase() + long.slice(1)} · ${startTime}${endTime ? `–${endTime}` : ''}`
   }
 }
