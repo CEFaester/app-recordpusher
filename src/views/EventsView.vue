@@ -1,19 +1,38 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
 import IconEvents from '@/components/icons/IconEvents.vue'
 import IconHome from '@/components/icons/IconHome.vue'
 import IconPoints from '@/components/icons/IconPoints.vue'
-import { events } from '@/services/eventService'
+import { getEvents } from '@/services/eventService'
 import { currentUser, toggleUserSavedEvent } from '@/services/userService'
 import vinyl from '@/assets/event-vinyl.svg'
 
 const route = useRoute()
 const router = useRouter()
+const events = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
+const isSaving = ref(false)
+const saveError = ref('')
+
+async function loadEvents() {
+  isLoading.value = true
+  errorMessage.value = ''
+  try {
+    events.value = await getEvents()
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(loadEvents)
 
 const selectedEvent = computed(() =>
-  events.find((event) => event.id === route.query.event)
+  events.value.find((event) => event.id === route.query.event)
 )
 
 const isSaved = computed(() => {
@@ -35,16 +54,32 @@ async function toggleSaved() {
     return
   }
   if (!selectedEvent.value) return
-  await toggleUserSavedEvent(selectedEvent.value.id)
+  if (isSaving.value) return
+  isSaving.value = true
+  saveError.value = ''
+  try {
+    // Genbruger den eksisterende funktion, der gemmer event-ID'et på brugerprofilen.
+    await toggleUserSavedEvent(selectedEvent.value.id)
+  } catch (error) {
+    saveError.value = error.message
+  } finally {
+    isSaving.value = false
+  }
 }
 </script>
 
 <template>
   <div class="events-view">
+    <p v-if="isLoading" role="status" class="muted-note">Henter events...</p>
+    <template v-else-if="errorMessage">
+      <p role="alert">{{ errorMessage }}</p>
+      <button class="action-btn" type="button" @click="loadEvents">Prøv igen</button>
+    </template>
+
     <!-- 1. EVENT DETALJE -->
-    <template v-if="selectedEvent">
+    <template v-else-if="selectedEvent">
       <div class="subview-header">
-        <span>{{ selectedEvent.id === 'fredagslyt' ? 'FREDAGSLYT' : 'VINYL & VENNER' }}</span>
+        <span>{{ selectedEvent.title.toUpperCase() }}</span>
       </div>
 
       <div class="detail-poster" :class="`detail-poster--${selectedEvent.theme}`">
@@ -71,13 +106,14 @@ async function toggleSaved() {
       </p>
 
       <div class="detail-actions">
-        <button class="action-btn action-btn--selected" type="button" @click="toggleSaved">
+        <button class="action-btn action-btn--selected" type="button" :disabled="isSaving" @click="toggleSaved">
           <span>
-            {{ !currentUser ? 'Log ind for at gemme' : (isSaved ? 'Fjern fra gemte' : 'Gem event') }}
+            {{ isSaving ? 'Gemmer...' : !currentUser ? 'Log ind for at gemme' : (isSaved ? 'Fjern fra gemte' : 'Gem event') }}
           </span>
           <span class="arrow">→</span>
         </button>
 
+        <p v-if="saveError" role="alert">{{ saveError }}</p>
         <p v-if="isSaved" class="saved-confirmation">
           <strong>GEMT. VI SES MELLEM PLADERNE.</strong><br />
           Eventet ligger nu under dine gemte events.
@@ -93,6 +129,11 @@ async function toggleSaved() {
           <span class="arrow">→</span>
         </a>
       </div>
+    </template>
+
+    <template v-else-if="route.query.event">
+      <p role="status">Eventet findes ikke længere.</p>
+      <button class="action-btn" type="button" @click="router.push({ name: 'events' })">Se alle events →</button>
     </template>
 
     <!-- 2. ALLE EVENTS -->
@@ -114,9 +155,10 @@ async function toggleSaved() {
         </button>
       </div>
 
-      <p class="section-label">NOVEMBER / KOMMENDE EVENTS</p>
+      <p class="section-label">EVENTS I BUTIKKEN</p>
 
-      <div class="events-list">
+      <p v-if="!events.length" class="muted-note">Der er ingen events endnu.</p>
+      <div v-else class="events-list">
         <button
           v-for="event in events"
           :key="event.id"
@@ -128,7 +170,6 @@ async function toggleSaved() {
         </button>
       </div>
 
-      <p class="muted-note">Events her er konceptindhold til prototypen.</p>
     </template>
   </div>
 </template>

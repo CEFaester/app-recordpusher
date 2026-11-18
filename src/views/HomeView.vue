@@ -1,17 +1,37 @@
 <script setup>
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import EventCard from '@/components/EventCard.vue'
 import IconPoints from '@/components/icons/IconPoints.vue'
 import IconArrow from '@/components/icons/IconArrow.vue'
-import { events } from '@/services/eventService'
+import { getEvents, getUpcomingEvents } from '@/services/eventService'
 import { currentUser } from '@/services/userService'
 import vinyl from '@/assets/event-vinyl.svg'
 
 const router = useRouter()
+const events = ref([])
+const isLoading = ref(true)
+const errorMessage = ref('')
+const nextEvent = computed(() => getUpcomingEvents(events.value)[0])
+
+// Henter de nyeste events hver gang forsiden åbnes.
+async function loadEvents() {
+  isLoading.value = true
+  errorMessage.value = ''
+  try {
+    events.value = await getEvents()
+  } catch (error) {
+    errorMessage.value = error.message
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(loadEvents)
 
 function openEvent() {
-  if (!events.length) return
-  router.push({ name: 'events', query: { event: events[0].id } })
+  if (!nextEvent.value) return
+  router.push({ name: 'events', query: { event: nextEvent.value.id } })
 }
 </script>
 
@@ -48,9 +68,15 @@ function openEvent() {
         <RouterLink :to="{ name: 'events' }" class="section-link">Se alle →</RouterLink>
       </div>
 
-      <button v-if="events.length" type="button" class="event-trigger" @click="openEvent">
-        <EventCard :event="events[0]" />
+      <p v-if="isLoading" role="status">Henter kommende events...</p>
+      <template v-else-if="errorMessage">
+        <p role="alert">{{ errorMessage }}</p>
+        <button type="button" @click="loadEvents">Prøv igen</button>
+      </template>
+      <button v-else-if="nextEvent" type="button" class="event-trigger" @click="openEvent">
+        <EventCard :event="nextEvent" />
       </button>
+      <p v-else>Der er ingen kommende events lige nu.</p>
     </section>
 
     <p class="home-footer">Musik er bedre, når vi deler den.</p>
