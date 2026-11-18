@@ -97,7 +97,6 @@
   font-weight: 600;
   color: $color-text;
   text-decoration: none;
-  border-radius: 6px;
   transition: background-color 0.2s ease, color 0.2s ease;
 
   &:hover {
