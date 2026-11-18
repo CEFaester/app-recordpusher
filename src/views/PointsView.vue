@@ -28,7 +28,11 @@ const handlePurchase = (item) => {
 
 <template>
   <div class="points-view">
-    <h1 class="page-title">DET GIVER <br> NOGET IGEN.</h1>
+
+      <div class="page-header">
+        <p class="eyebrow">GOD MUSIK. GODE FORDELE.</p>
+        <h1 class="page-title">DET SKER<br />I BUTIKKEN.</h1>
+      </div>
     
     <header class="balance-card">
       <h3 class="balance-title">Dine Point</h3>
@@ -75,7 +79,29 @@ const handlePurchase = (item) => {
 .points-view {
   display: flex;
   flex-direction: column;
-  gap: $space-lg; // Afstand mellem saldo-boks og butik
+  gap: $space-lg;
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: $font-size-small;
+  color: $color-accent-primary;
+  font-weight: 700;
+}
+
+.page-title {
+  font-family: $font-family-heading;
+  font-size: 2.375rem;
+  line-height: 1.15;
+  font-weight: 400;
+  color: $color-text;
+  margin: 0;
 }
 
 /* =========================================
@@ -120,8 +146,8 @@ const handlePurchase = (item) => {
 }
 
 .shop-title {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: $font-size-large;
+  font-weight: 500;
   margin-bottom: $space-md;
   color: $color-text;
 }
