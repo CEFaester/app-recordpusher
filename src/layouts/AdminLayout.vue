@@ -35,6 +35,7 @@
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
   background-color: $color-background;
 }
 
@@ -55,6 +56,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  box-sizing: border-box;
   justify-content: space-between;
   gap: $space-sm $space-lg;
 }
@@ -114,6 +116,7 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
+  box-sizing: border-box;
   // clamp() tilpasser automatisk luft i siderne fra mobil (16px) til stor skærm (32px)
   padding: clamp($space-md, 3vw, $space-xl);
 }
