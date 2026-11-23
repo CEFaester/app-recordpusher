@@ -43,7 +43,13 @@ function openEvent() {
     </header>
 
     <RouterLink :to="{ name: 'events' }" class="campaign" aria-label="Se kommende events">
-      <img :src="campaignImg" class="campaign__bg" alt="" />
+      <img
+        :src="campaignImg"
+        class="campaign__bg"
+        alt=""
+        fetchpriority="high"
+        decoding="sync"
+      />
       <span class="campaign__title">LIVE.<br />TÆT PÅ.</span>
       <span class="campaign__subtitle">Gratis musik. Midt i Odense.</span>
       <span class="campaign__badge">SE EVENTS →</span>
