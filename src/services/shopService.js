@@ -55,3 +55,18 @@ export const deleteShopItem = async (id) => {
   if (!response.ok) throw new Error('Kunne ikke slette varen.')
   return true
 }
+
+/**
+ * Opdaterer en eksisterende vare i Firebase
+ */
+export const updateShopItem = async (id, updatedItem) => {
+  const response = await fetch(`${DB_URL}/shopItems/${id}.json`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedItem)
+  })
+
+  if (!response.ok) throw new Error('Kunne ikke opdatere varen i databasen.')
+
+  return { id, ...updatedItem }
+}

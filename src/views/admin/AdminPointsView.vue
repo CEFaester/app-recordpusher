@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getShopItems, createShopItem, deleteShopItem } from '@/services/shopService'
+import { getShopItems, createShopItem, updateShopItem, deleteShopItem } from '@/services/shopService'
 
 const items = ref([])
 const newName = ref('')
 const newCost = ref('')
 const newImage = ref('')
 const newIcon = ref('🎁')
+const editingId = ref(null)
 const fileInputRef = ref(null)
 const isSaving = ref(false)
 const isProcessingImage = ref(false)
@@ -75,23 +76,50 @@ const clearSelectedImage = () => {
   }
 }
 
-const addItem = async () => {
+const resetForm = () => {
+  editingId.value = null
+  newName.value = ''
+  newCost.value = ''
+  newIcon.value = '🎁'
+  clearSelectedImage()
+}
+
+const startEditing = (item) => {
+  editingId.value = item.id
+  newName.value = item.name
+  newCost.value = item.cost
+  newImage.value = item.image || ''
+  newIcon.value = item.icon || '🎁'
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const saveItem = async () => {
   if (!newName.value || !newCost.value) return
+
+  const payload = {
+    name: newName.value.trim(),
+    cost: Number(newCost.value),
+    image: newImage.value,
+    icon: newIcon.value.trim() || '🎁'
+  }
 
   try {
     isSaving.value = true
-    const created = await createShopItem({
-      name: newName.value.trim(),
-      cost: Number(newCost.value),
-      image: newImage.value,
-      icon: newIcon.value.trim() || '🎁'
-    })
 
-    items.value.push(created)
-    newName.value = ''
-    newCost.value = ''
-    newIcon.value = '🎁'
-    clearSelectedImage()
+    if (editingId.value) {
+      const updated = await updateShopItem(editingId.value, payload)
+      items.value = items.value.map((item) =>
+        item.id === editingId.value ? updated : item
+      )
+    } else {
+      const created = await createShopItem(payload)
+      items.value.push(created)
+    }
+
+    resetForm()
   } catch (error) {
     console.error(error)
   } finally {
@@ -102,6 +130,7 @@ const addItem = async () => {
 const removeItem = async (id) => {
   try {
     await deleteShopItem(id)
+    if (editingId.value === id) resetForm()
     items.value = items.value.filter((item) => item.id !== id)
   } catch (error) {
     console.error(error)
@@ -118,7 +147,7 @@ const removeItem = async (id) => {
       </p>
     </header>
 
-    <form @submit.prevent="addItem" class="admin-form">
+    <form @submit.prevent="saveItem" class="admin-form">
       <input v-model="newName" type="text" placeholder="Varenavn" class="form-input" required />
       <input v-model="newCost" type="number" placeholder="Pris i point" class="form-input" required />
 
@@ -147,7 +176,11 @@ const removeItem = async (id) => {
       <input v-model="newIcon" type="text" placeholder="Emoji (🎁)" class="form-input icon-input" />
       
       <button type="submit" class="action-btn" :disabled="isSaving || isProcessingImage">
-        {{ isSaving ? 'Gemmer...' : '+ Tilføj vare' }}
+        {{ isSaving ? 'Gemmer...' : (editingId ? 'Gem ændringer' : '+ Tilføj vare') }}
+      </button>
+
+      <button v-if="editingId" type="button" class="secondary-btn" @click="resetForm">
+        Annuller
       </button>
     </form>
 
@@ -160,8 +193,13 @@ const removeItem = async (id) => {
           </div>
           <span class="card-badge">{{ item.cost }} POINT</span>
         </div>
+
         <h3 class="card-title">{{ item.name }}</h3>
-        <button type="button" class="delete-btn" @click="removeItem(item.id)">Fjern vare</button>
+
+        <div class="card-actions">
+          <button type="button" class="secondary-btn" @click="startEditing(item)">Rediger</button>
+          <button type="button" class="delete-btn" @click="removeItem(item.id)">Fjern vare</button>
+        </div>
       </article>
     </div>
   </div>
@@ -172,6 +210,7 @@ const removeItem = async (id) => {
   display: flex;
   flex-direction: column;
   gap: $space-lg;
+  box-sizing: border-box;
 }
 
 .page-title {
@@ -195,16 +234,19 @@ const removeItem = async (id) => {
   gap: $space-sm;
   background-color: $color-primary;
   padding: $space-md;
+  box-sizing: border-box;
 }
 
 .form-input {
   flex: 1 1 180px;
+  min-width: 0;
   padding: $space-sm;
   border: 1px solid rgba(0, 0, 0, 0.15);
   background-color: $color-background;
   color: $color-text;
   font-family: inherit;
   font-size: $font-size-base;
+  box-sizing: border-box;
 
   &.icon-input {
     flex: 0 1 90px;
@@ -218,6 +260,7 @@ const removeItem = async (id) => {
 
 .file-upload-btn {
   flex: 1 1 180px;
+  min-width: 0;
   padding: $space-sm $space-md;
   border: 1px dashed $color-text;
   background-color: $color-background;
@@ -227,6 +270,7 @@ const removeItem = async (id) => {
   text-align: center;
   cursor: pointer;
   user-select: none;
+  box-sizing: border-box;
 
   &:active {
     opacity: 0.8;
@@ -270,18 +314,31 @@ const removeItem = async (id) => {
 
 .action-btn {
   flex: 1 1 160px;
+  min-width: 0;
   padding: $space-sm $space-md;
   background-color: $color-accent-primary;
   color: $color-text-inverted;
-  border: none;
+  border: 1px solid $color-accent-primary;
   font-weight: 600;
   font-size: $font-size-base;
   cursor: pointer;
+  box-sizing: border-box;
 
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
+}
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid $color-text;
+  color: $color-text;
+  padding: 6px $space-sm;
+  font-family: inherit;
+  font-size: $font-size-small;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .items-grid {
@@ -296,6 +353,8 @@ const removeItem = async (id) => {
   display: flex;
   flex-direction: column;
   gap: $space-sm;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .card-visual {
@@ -337,13 +396,19 @@ const removeItem = async (id) => {
   margin: 0;
 }
 
-.delete-btn {
+.card-actions {
   margin-top: auto;
-  align-self: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+}
+
+.delete-btn {
   background: none;
   border: 1px solid $color-accent-primary;
   color: $color-accent-primary;
   padding: 6px $space-sm;
+  font-family: inherit;
   font-size: $font-size-small;
   font-weight: 600;
   cursor: pointer;
