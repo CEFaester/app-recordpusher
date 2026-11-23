@@ -6,7 +6,7 @@ import IconPoints from '@/components/icons/IconPoints.vue'
 import IconArrow from '@/components/icons/IconArrow.vue'
 import { getEvents, getUpcomingEvents } from '@/services/eventService'
 import { currentUser } from '@/services/userService'
-import vinyl from '@/assets/event-vinyl.svg'
+import campaignImg from '@/assets/recordpusher.jpeg'
 
 const router = useRouter()
 const events = ref([])
@@ -43,7 +43,7 @@ function openEvent() {
     </header>
 
     <RouterLink :to="{ name: 'events' }" class="campaign" aria-label="Se kommende events">
-      <img :src="vinyl" class="campaign__vinyl" alt="" />
+      <img :src="campaignImg" class="campaign__bg" alt="" />
       <span class="campaign__title">LIVE.<br />TÆT PÅ.</span>
       <span class="campaign__subtitle">Gratis musik. Midt i Odense.</span>
       <span class="campaign__badge">SE EVENTS →</span>
@@ -133,18 +133,30 @@ function openEvent() {
     opacity: 0.9;
   }
 
-  &__vinyl {
+  &::after {
+    content: '';
     position: absolute;
-    width: 170px;
-    height: 170px;
-    top: 56px;
-    right: -58px;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.2) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  &__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 70%;
+    z-index: 0;
   }
 
   &__title {
     position: absolute;
     top: $space-md;
     left: $space-md;
+    z-index: 2;
     font-family: $font-family-heading;
     font-size: 2.9rem;
     line-height: 1.05;
@@ -154,6 +166,7 @@ function openEvent() {
     position: absolute;
     bottom: 46px;
     left: $space-md;
+    z-index: 2;
     font-size: $font-size-small;
   }
 
@@ -161,6 +174,7 @@ function openEvent() {
     position: absolute;
     bottom: $space-md;
     left: $space-md;
+    z-index: 2;
     padding: $space-xs $space-sm;
     background-color: $color-accent-secondary;
     color: $color-text;
