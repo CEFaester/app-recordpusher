@@ -18,7 +18,7 @@ import BottomNav from '@/components/BottomNav.vue'
 <style lang="scss" scoped>
 .mobile-app-wrapper {
   min-height: 100dvh;
-  background-color: $color-primary;
+  background-color: $color-background;
   display: flex;
   justify-content: center;
 }

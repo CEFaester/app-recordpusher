@@ -11,3 +11,13 @@ onMounted(() => {
 <template>
   <router-view />
 </template>
+
+<style lang="scss">
+
+.app-wrapper {
+  width: 100%;
+  min-height: 100dvh;
+  background-color: $color-background;
+}
+
+</style>

@@ -46,15 +46,18 @@ const router = useRouter()
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: $app-max-width;
   height: 64px;
   background-color: $color-background;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 $space-md;
+  padding: env(safe-area-inset-top, 0px) $space-md 0;
   z-index: 100;
-  padding-top: env(safe-area-inset-top, 0px); 
+  box-sizing: border-box;
+
+  @media (min-width: 481px) {
+    max-width: $app-max-width;
+  }
 }
 
 .nav-left, .nav-right {

@@ -36,14 +36,19 @@ import IconProfile from '@/components/icons/IconProfile.vue'
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: $app-max-width;
-  height: 64px;
-  background-color: $color-background;
+  min-height: 64px;
+  background-color: $color-primary;
   display: flex;
   align-items: center;
   justify-content: space-around;
   z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-top: $space-sm;
+  padding-bottom: calc($space-sm + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+
+  @media (min-width: 481px) {
+    max-width: $app-max-width;
+  }
 }
 
 .nav-item {
