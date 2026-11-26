@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import { ref, onMounted } from 'vue'
 import EventCard from '@/components/EventCard.vue'
@@ -9,7 +10,6 @@ const isSaving = ref(false)
 const editingId = ref(null)
 const errorMessage = ref('')
 const successMessage = ref('')
-
 // Samme formular bruges til både nye events og redigering af eksisterende.
 const emptyForm = () => ({
   title: '', poster: '', theme: 'yellow', day: '', startTime: '', endTime: '',

@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import TopNav from '@/components/TopNav.vue'
 import BottomNav from '@/components/BottomNav.vue'

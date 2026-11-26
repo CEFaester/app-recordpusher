@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import IconHome from '@/components/icons/IconHome.vue'
 import IconEvents from '@/components/icons/IconEvents.vue'

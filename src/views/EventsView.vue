@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
 import { ref } from 'vue'

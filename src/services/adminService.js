@@ -1,3 +1,6 @@
+/**
+ * Lavet med hjælp fra AI
+ */
 import { ref } from 'vue'
 
 const DB_URL = 'https://record-pusher-app-default-rtdb.europe-west1.firebasedatabase.app'

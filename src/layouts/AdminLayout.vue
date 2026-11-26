@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import { ref } from 'vue'
 import { isAdminAuthenticated, loginAdmin, logoutAdmin } from '@/services/adminService'

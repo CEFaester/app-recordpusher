@@ -1,3 +1,7 @@
+/**
+ * Lavet med hjælp fra AI
+ */
+
 import { ref } from 'vue'
 
 // Indsæt linket til din database her (uden skråstreg til sidst)

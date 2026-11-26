@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import { computed } from 'vue'
 import vinyl from '@/assets/event-vinyl.svg'

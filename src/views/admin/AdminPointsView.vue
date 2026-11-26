@@ -1,3 +1,4 @@
+<!-- Lavet med hjælp fra AI -->
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getShopItems, createShopItem, updateShopItem, deleteShopItem } from '@/services/shopService'
